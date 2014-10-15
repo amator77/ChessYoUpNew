@@ -1,0 +1,105 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <view
+        android:id="@+id/chessboard"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_centerInParent="true"
+        android:layout_margin="2dp"
+        class="com.chessyoup.game.view.ChessBoardPlayView" />
+
+    <ImageView
+        android:id="@+id/remotePlayerAvatarView"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_above="@+id/chessboard"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/localPlayerAvatarView"
+        android:layout_marginLeft="2dp"
+        android:background="@drawable/avatar_background_shape"
+        android:padding="3dp"
+        android:src="@drawable/general_avatar_unknown" />
+
+    <TextView
+        android:id="@+id/remotePlayerClockView"
+        style="@style/GameClock"
+        android:layout_above="@+id/chessboard"
+        android:layout_alignRight="@+id/chessboard"
+        android:text="00:00"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/localPlayerClockView"
+        style="@style/GameClock"
+        android:layout_alignBaseline="@+id/localPlayerDisplayNameView"
+        android:layout_alignBottom="@+id/localPlayerDisplayNameView"
+        android:layout_alignRight="@+id/chessboard"
+        android:text="00:00"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <ImageView
+        android:id="@+id/localPlayerAvatarView"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_below="@+id/chessboard"
+        android:layout_marginLeft="2dp"
+        android:background="@drawable/avatar_background_shape"
+        android:padding="3dp"
+        android:src="@drawable/general_avatar_unknown" />
+
+    <TextView
+        android:id="@+id/localPlayerDisplayNameView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/localPlayerAvatarView"
+        android:layout_marginLeft="4dp"
+        android:layout_toRightOf="@+id/localPlayerAvatarView"
+        android:text="localPlayer"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/remotePlayerDisplayNameView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/remotePlayerAvatarView"
+        android:layout_alignLeft="@+id/localPlayerDisplayNameView"
+        android:layout_marginLeft="4dp"
+        android:text="remotePlayer"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <LinearLayout
+        android:id="@+id/test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" >
+
+        <ImageButton
+            android:id="@+id/game_nav_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/arrow_left_double" />
+
+        <ImageButton
+            android:id="@+id/game_nav_prev"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/arrow_left" />
+        
+         <ImageButton
+            android:id="@+id/game_nav_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/arrow_right" />
+        <ImageButton
+            android:id="@+id/game_nav_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/arrow_right_double" />
+        
+    </LinearLayout>
+
+</RelativeLayout>
