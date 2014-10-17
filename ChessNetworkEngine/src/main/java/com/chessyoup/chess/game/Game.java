@@ -1,8 +1,8 @@
 package com.chessyoup.chess.game;
 
 import com.chessyoup.chess.game.ui.ChessGameUI;
+import com.chessyoup.chess.model.Chessboard;
 import com.chessyoup.chess.model.Color;
-import com.chessyoup.chess.model.Model;
 
 public interface Game {
 
@@ -16,7 +16,7 @@ public interface Game {
 
 	public String getId();
 
-	public Model getGame();
+	public Chessboard getChessboard();
 
 	public void setPlayer(Player player, Color color);
 

@@ -11,37 +11,31 @@ public interface Tree {
      * Get the root of this game tree
      * @return
      */
-    public TreeNode getRoot();
+    public Node getRoot();
 
     /**
      * Get all the tree
      * @return
      */
-    public List<TreeNode> getTree();
-
-    /**
-     * Get main line
-     * @return
-     */
-    public List<Position> getMainLine();
+    public List<Node> getTree();
 
     /**
      * Get current selected node in the tree.
      * @return
      */
-    public TreeNode getSelectedNode();
+    public Node getSelectedNode();
 
     /**
      * Set the current selected node in the game tree
      */
-    public void setSelectedNode(TreeNode node);
+    public void setSelectedNode(Node node);
 
     /**
      * Add new node using current selected node as parent.
      * The new node will become the new current selection.
      * @param node
      */
-    public void appendNode(TreeNode node);
+    public void appendNode(Node node);
 
     /**
      * Insert new node in the tree.
@@ -49,5 +43,5 @@ public interface Tree {
      * @param parent - the parent for the new node
      * @param node - the node
      */
-    public void insertNode(TreeNode parent,TreeNode node);
+    public void insertNode(Node parent,Node node);
 }

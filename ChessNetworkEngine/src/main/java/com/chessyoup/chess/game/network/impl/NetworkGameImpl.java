@@ -12,7 +12,7 @@ import com.chessyoup.chess.game.network.NetworkGame;
 import com.chessyoup.chess.game.network.Transport;
 import com.chessyoup.chess.game.network.Transport.TransportListener;
 import com.chessyoup.chess.game.network.messages.IMessage;
-import com.chessyoup.chess.model.Model;
+import com.chessyoup.chess.model.Chessboard;
 
 public class NetworkGameImpl extends ChessGameImpl implements NetworkGame,
 		TransportListener {
@@ -28,9 +28,9 @@ public class NetworkGameImpl extends ChessGameImpl implements NetworkGame,
 
 	public List<NetworkGameListener> listeners;
 
-	public NetworkGameImpl(String gameId, Model game, Player localPlayer,
+	public NetworkGameImpl(String gameId, Player localPlayer,
 			Transport transport) {
-		super(gameId, game);
+		super(gameId,null);
 		this.localPlayer = localPlayer;
 		this.transport = transport;
 		this.transport.addTransportListener(this);
@@ -118,6 +118,11 @@ public class NetworkGameImpl extends ChessGameImpl implements NetworkGame,
 			listener.onChatReceived(message.toString());
 		}
 	}
+
+    @Override
+    public Chessboard getChessboard() {
+        return null;
+    }
 
 //	private void handleMoveMessage(MoveMessage message) {
 //		

@@ -5,14 +5,15 @@ import com.chessyoup.chess.game.Clock;
 import com.chessyoup.chess.game.Service;
 import com.chessyoup.chess.game.Player;
 import com.chessyoup.chess.game.ui.ChessGameUI;
+import com.chessyoup.chess.model.Chessboard;
 import com.chessyoup.chess.model.Color;
-import com.chessyoup.chess.model.Model;
+
 
 public class ChessGameImpl implements Game {
 
 	public String gameId;
 
-	public Model game;
+	public Chessboard game;
 
 	public Player whitePlayer;
 
@@ -24,7 +25,7 @@ public class ChessGameImpl implements Game {
 
 	public STATE state;
 
-	public ChessGameImpl(String gameId, Model game) {
+	public ChessGameImpl(String gameId, Chessboard game) {
 		this.gameId = gameId;
 		this.game = game;
 		this.whitePlayer = null;
@@ -38,12 +39,13 @@ public class ChessGameImpl implements Game {
 		return this.gameId;
 	}
 
-	@Override
-	public Model getGame() {
-		return this.game;
-	}
+    @Override
+    public Chessboard getChessboard() {
+        return this.getChessboard();
+    }
 
-	@Override
+
+    @Override
 	public void setPlayer(Player player, Color color) {
 		switch (color) {
 		case WHITE:
