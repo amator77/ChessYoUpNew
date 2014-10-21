@@ -1,7 +1,7 @@
 package com.chessyoup.chess.model.impl;
 
 import com.chessyoup.chess.model.Color;
-import com.chessyoup.chess.model.Move;
+import com.chessyoup.chess.model.Factory;
 import com.chessyoup.chess.model.Piece;
 import com.chessyoup.chess.model.Position;
 import com.chessyoup.chess.model.Square;
@@ -9,11 +9,7 @@ import com.chessyoup.chess.model.Square;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-/**
- * Created by leo on 17.10.2014.
- */
 public class PositionImpl implements Position {
-
     private int[] squares;
 
     public boolean whiteMove;
@@ -23,23 +19,6 @@ public class PositionImpl implements Position {
     public static final int H1_CASTLE = 1; /** White short castle. */
     public static final int A8_CASTLE = 2; /** Black long castle. */
     public static final int H8_CASTLE = 3; /** Black short castle. */
-
-    public static final int EMPTY = 0;
-
-    public static final int WKING = 1;
-    public static final int WQUEEN = 2;
-    public static final int WROOK = 3;
-    public static final int WBISHOP = 4;
-    public static final int WKNIGHT = 5;
-    public static final int WPAWN = 6;
-
-    public static final int BKING = 7;
-    public static final int BQUEEN = 8;
-    public static final int BROOK = 9;
-    public static final int BBISHOP = 10;
-    public static final int BKNIGHT = 11;
-    public static final int BPAWN = 12;
-    public static final int nPieceTypes = 13;
 
     private int castleMask;
 
@@ -57,6 +36,8 @@ public class PositionImpl implements Position {
     /** Initialize board to empty position. */
     public PositionImpl() {
         squares = new int[64];
+        for (int i = 0; i < 64; i++)
+            squares[i] = PieceImpl.EMPTY;
         whiteMove = true;
         castleMask = 0;
         epSquare = -1;
@@ -148,6 +129,7 @@ public class PositionImpl implements Position {
         return (x & 1) == (y & 1);
     }
 
+
     /** Return piece occupying a square. */
     public final int getPiece(int square) {
         return squares[square];
@@ -163,9 +145,9 @@ public class PositionImpl implements Position {
         squares[square] = piece;
 
         // Update king position
-        if (piece == PositionImpl.WKING) {
+        if (piece == PieceImpl.WKING) {
             wKingSq = square;
-        } else if (piece == PositionImpl.BKING) {
+        } else if (piece == PieceImpl.BKING) {
             bKingSq = square;
         }
     }
@@ -226,7 +208,11 @@ public class PositionImpl implements Position {
     }
 
     /** Apply a move to the current position. */
-    public final void makeMove(Move move) {
+    public final void makeMove(MoveImpl move, UndoInfo ui) {
+        ui.capturedPiece = squares[move.to];
+        ui.castleMask = castleMask;
+        ui.epSquare = epSquare;
+        ui.halfMoveClock = halfMoveClock;
         boolean wtm = whiteMove;
 
         int p = squares[move.from];
@@ -234,7 +220,7 @@ public class PositionImpl implements Position {
 
         boolean nullMove = (move.from == 0) && (move.to == 0);
 
-        if (nullMove || (capP != Piece.EMPTY) || (p == (wtm ? Piece.WPAWN : Piece.BPAWN))) {
+        if (nullMove || (capP != PieceImpl.EMPTY) || (p == (wtm ? PieceImpl.WPAWN : PieceImpl.BPAWN))) {
             halfMoveClock = 0;
         } else {
             halfMoveClock++;
@@ -244,30 +230,30 @@ public class PositionImpl implements Position {
         }
 
         // Handle castling
-        int king = wtm ? Piece.WKING : Piece.BKING;
+        int king = wtm ? PieceImpl.WKING : PieceImpl.BKING;
         int k0 = move.from;
         if (p == king) {
             if (move.to == k0 + 2) { // O-O
                 setPiece(k0 + 1, squares[k0 + 3]);
-                setPiece(k0 + 3, Piece.EMPTY);
+                setPiece(k0 + 3, PieceImpl.EMPTY);
             } else if (move.to == k0 - 2) { // O-O-O
                 setPiece(k0 - 1, squares[k0 - 4]);
-                setPiece(k0 - 4, Piece.EMPTY);
+                setPiece(k0 - 4, PieceImpl.EMPTY);
             }
             if (wtm) {
-                setCastleMask(castleMask & ~(1 << Position.A1_CASTLE));
-                setCastleMask(castleMask & ~(1 << Position.H1_CASTLE));
+                setCastleMask(castleMask & ~(1 << PositionImpl.A1_CASTLE));
+                setCastleMask(castleMask & ~(1 << PositionImpl.H1_CASTLE));
             } else {
-                setCastleMask(castleMask & ~(1 << Position.A8_CASTLE));
-                setCastleMask(castleMask & ~(1 << Position.H8_CASTLE));
+                setCastleMask(castleMask & ~(1 << PositionImpl.A8_CASTLE));
+                setCastleMask(castleMask & ~(1 << PositionImpl.H8_CASTLE));
             }
         }
         if (!nullMove) {
-            int rook = wtm ? Piece.WROOK : Piece.BROOK;
+            int rook = wtm ? PieceImpl.WROOK : PieceImpl.BROOK;
             if (p == rook) {
                 removeCastleRights(move.from);
             }
-            int oRook = wtm ? Piece.BROOK : Piece.WROOK;
+            int oRook = wtm ? PieceImpl.BROOK : PieceImpl.WROOK;
             if (capP == oRook) {
                 removeCastleRights(move.to);
             }
@@ -276,32 +262,32 @@ public class PositionImpl implements Position {
         // Handle en passant and epSquare
         int prevEpSquare = epSquare;
         setEpSquare(-1);
-        if (p == Piece.WPAWN) {
+        if (p == PieceImpl.WPAWN) {
             if (move.to - move.from == 2 * 8) {
-                int x = Position.getX(move.to);
-                if (    ((x > 0) && (squares[move.to - 1] == Piece.BPAWN)) ||
-                        ((x < 7) && (squares[move.to + 1] == Piece.BPAWN))) {
+                int x = PositionImpl.getX(move.to);
+                if (    ((x > 0) && (squares[move.to - 1] == PieceImpl.BPAWN)) ||
+                        ((x < 7) && (squares[move.to + 1] == PieceImpl.BPAWN))) {
                     setEpSquare(move.from + 8);
                 }
             } else if (move.to == prevEpSquare) {
-                setPiece(move.to - 8, Piece.EMPTY);
+                setPiece(move.to - 8, PieceImpl.EMPTY);
             }
-        } else if (p == Piece.BPAWN) {
+        } else if (p == PieceImpl.BPAWN) {
             if (move.to - move.from == -2 * 8) {
-                int x = Position.getX(move.to);
-                if (    ((x > 0) && (squares[move.to - 1] == Piece.WPAWN)) ||
-                        ((x < 7) && (squares[move.to + 1] == Piece.WPAWN))) {
+                int x = PositionImpl.getX(move.to);
+                if (    ((x > 0) && (squares[move.to - 1] == PieceImpl.WPAWN)) ||
+                        ((x < 7) && (squares[move.to + 1] == PieceImpl.WPAWN))) {
                     setEpSquare(move.from - 8);
                 }
             } else if (move.to == prevEpSquare) {
-                setPiece(move.to + 8, Piece.EMPTY);
+                setPiece(move.to + 8, PieceImpl.EMPTY);
             }
         }
 
         // Perform move
-        setPiece(move.from, Piece.EMPTY);
+        setPiece(move.from, PieceImpl.EMPTY);
         // Handle promotion
-        if (move.promoteTo != Piece.EMPTY) {
+        if (move.promoteTo != PieceImpl.EMPTY) {
             setPiece(move.to, move.promoteTo);
         } else {
             setPiece(move.to, p);
@@ -309,6 +295,45 @@ public class PositionImpl implements Position {
         setWhiteMove(!wtm);
     }
 
+    public final void unMakeMove(MoveImpl move, UndoInfo ui) {
+        setWhiteMove(!whiteMove);
+        int p = squares[move.to];
+        setPiece(move.from, p);
+        setPiece(move.to, ui.capturedPiece);
+        setCastleMask(ui.castleMask);
+        setEpSquare(ui.epSquare);
+        halfMoveClock = ui.halfMoveClock;
+        boolean wtm = whiteMove;
+        if (move.promoteTo != PieceImpl.EMPTY) {
+            p = wtm ? PieceImpl.WPAWN : PieceImpl.BPAWN;
+            setPiece(move.from, p);
+        }
+        if (!wtm) {
+            fullMoveCounter--;
+        }
+
+        // Handle castling
+        int king = wtm ? PieceImpl.WKING : PieceImpl.BKING;
+        int k0 = move.from;
+        if (p == king) {
+            if (move.to == k0 + 2) { // O-O
+                setPiece(k0 + 3, squares[k0 + 1]);
+                setPiece(k0 + 1, PieceImpl.EMPTY);
+            } else if (move.to == k0 - 2) { // O-O-O
+                setPiece(k0 - 4, squares[k0 - 1]);
+                setPiece(k0 - 1, PieceImpl.EMPTY);
+            }
+        }
+
+        // Handle en passant
+        if (move.to == epSquare) {
+            if (p == PieceImpl.WPAWN) {
+                setPiece(move.to - 8, PieceImpl.BPAWN);
+            } else if (p == PieceImpl.BPAWN) {
+                setPiece(move.to + 8, PieceImpl.WPAWN);
+            }
+        }
+    }
 
     private final void removeCastleRights(int square) {
         if (square == PositionImpl.getSquare(0, 0)) {
@@ -330,11 +355,11 @@ public class PositionImpl implements Position {
     private static long[] epHashKeys;      // [epFile + 1] (epFile==-1 for no ep)
 
     static {
-        psHashKeys = new long[PositionImpl.nPieceTypes][64];
+        psHashKeys = new long[PieceImpl.nPieceTypes][64];
         castleHashKeys = new long[16];
         epHashKeys = new long[9];
         int rndNo = 0;
-        for (int p = 0; p < PositionImpl.nPieceTypes; p++) {
+        for (int p = 0; p < PieceImpl.nPieceTypes; p++) {
             for (int sq = 0; sq < 64; sq++) {
                 psHashKeys[p][sq] = getRandomHashVal(rndNo++);
             }
@@ -384,52 +409,54 @@ public class PositionImpl implements Position {
         return TextIO.asciiBoard(this);
     }
 
-
-
     @Override
     public Piece getPieceAt(Square square) {
-        return null;
+        int index = square.getIndex();
+        return Util.convertPiece(getPiece( index ));
+    }
+
+    @Override
+    public Piece getPieceAt(char file, int rank) {
+        return getPieceAt(Factory.getFactory().getSquare(file,rank));
     }
 
     @Override
     public Color getActiveColor() {
-        return null;
+        return this.whiteMove ? Color.WHITE : Color.BLACK;
     }
 
     @Override
     public Square getEnpassantSquare() {
-        return null;
+        return Factory.getFactory().getSquare(getEpSquare());
     }
 
     @Override
     public boolean isWhiteKingSideCastleAvailable() {
-        return false;
+        return !h1Castle();
     }
 
     @Override
     public boolean isWhiteQueenSideCastleCastleAvailable() {
-        return false;
+        return !a1Castle();
     }
 
     @Override
     public boolean isBlackKingSideCastleAvailable() {
-        return false;
+        return !h8Castle();
     }
 
     @Override
     public boolean isBlackQueenSideCastleAvailable() {
-        return false;
+        return !a8Castle();
     }
 
     @Override
     public int getHalfMoveClock() {
-        return 0;
+        return this.halfMoveClock;
     }
 
     @Override
     public int getFullMoveNumber() {
-        return 0;
+        return this.fullMoveCounter;
     }
-
-
 }

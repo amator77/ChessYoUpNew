@@ -13,7 +13,6 @@ import java.util.List;
  */
 public class NodeImpl implements Node {
 
-    private Position position;
     private Move move;
     private Node parent;
     private List<Node> childs;
@@ -23,8 +22,7 @@ public class NodeImpl implements Node {
     private String preComment;
     private String postComment;
 
-    public NodeImpl(Position position, Node parent, List<Node> childs, Move move, boolean main, Result result, long moveTime) {
-        this.position = position;
+    public NodeImpl( Node parent, List<Node> childs, Move move, boolean main, Result result, long moveTime) {
         this.parent = parent;
         this.childs = childs;
         this.move = move;
@@ -35,20 +33,20 @@ public class NodeImpl implements Node {
         this.postComment = "";
     }
 
-    public NodeImpl(Position position, Node parent, List<Node> childs, Move move, boolean main) {
-        this(position,parent,childs,move,main,null,0);
+    public NodeImpl(Node parent, List<Node> childs, Move move, boolean main) {
+        this(parent,childs,move,main,null,0);
     }
 
-    public NodeImpl(Position position, Move move, boolean main) {
-        this(position,null,new ArrayList<Node>(),move,main,null,0);
+    public NodeImpl(Move move, boolean main) {
+        this(null,new ArrayList<Node>(),move,main,null,0);
     }
 
-    public NodeImpl(Position position, Move move) {
-        this(position,null,new ArrayList<Node>(),move,true,null,0);
+    public NodeImpl(Move move) {
+        this(null,new ArrayList<Node>(),move,true,null,0);
     }
 
-    public NodeImpl(Position position) {
-        this(position,null,new ArrayList<Node>(),null,true,null,0);
+    public NodeImpl() {
+        this(null,new ArrayList<Node>(),null,true,null,0);
     }
 
     @Override
@@ -59,11 +57,6 @@ public class NodeImpl implements Node {
     @Override
     public boolean isMain() {
         return this.main;
-    }
-
-    @Override
-    public Position getPosition() {
-        return this.position;
     }
 
     @Override

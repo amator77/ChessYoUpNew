@@ -11,6 +11,14 @@ public interface Position {
     public Piece getPieceAt(Square square);
 
     /**
+     *
+     * @param file
+     * @param rank
+     * @return
+     */
+    public Piece getPieceAt(char file , int rank);
+
+    /**
      * Get side to move.
      *
      * @return

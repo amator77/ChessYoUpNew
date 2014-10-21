@@ -6,5 +6,5 @@ public interface Move {
 	
 	public Square getDestination();
 
-    public Piece.PieceType getPromotionPiece();
+    public Piece getPromotionPiece();
 }

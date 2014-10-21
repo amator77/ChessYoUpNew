@@ -14,8 +14,8 @@ import com.chessyoup.R;
 import com.chessyoup.chessboard.ChessboardStatus;
 import com.chessyoup.chessboard.ChessboardUIInterface;
 import com.chessyoup.model.Game.GameState;
-import com.chessyoup.model.Move;
-import com.chessyoup.model.Position;
+import com.chessyoup.model.MoveImpl;
+import com.chessyoup.model.PositionImpl;
 import com.chessyoup.model.TextIO;
 import com.chessyoup.ui.ChessOnlinePlayGameUI;
 import com.chessyoup.ui.util.UIUtil;
@@ -69,7 +69,7 @@ public class ChessboardUIController extends
 		if (true) {
 
 			int sq = chessGameRoomUI.getBoardPlayView().eventToSquare(e);
-			Move m = chessGameRoomUI.getBoardPlayView().mousePressed(sq);
+			MoveImpl m = chessGameRoomUI.getBoardPlayView().mousePressed(sq);
 			Log.d(TAG, "handleClick :: " + sq);
 
 			if (m != null) {
@@ -80,8 +80,8 @@ public class ChessboardUIController extends
 	}
 
 	@Override
-	public void setPosition(Position pos, String variantInfo,
-			ArrayList<Move> variantMoves) {
+	public void setPosition(PositionImpl pos, String variantInfo,
+			ArrayList<MoveImpl> variantMoves) {
 		Log.d(TAG, "setPosition :: pos=" + pos + ",variantInfo=" + variantInfo
 				+ ",variantMoves" + variantMoves);
 		chessGameRoomUI.getBoardPlayView().setPosition(pos);
@@ -184,7 +184,7 @@ public class ChessboardUIController extends
 	}
 
 	@Override
-	public void reportInvalidMove(Move m) {
+	public void reportInvalidMove(MoveImpl m) {
 		Log.d(TAG, "reportInvalidMove :: move=" + m.toString());
 
 		String msg = String.format("%s %s-%s",
@@ -228,7 +228,7 @@ public class ChessboardUIController extends
 	}
 
 	@Override
-	public void setAnimMove(Position sourcePos, Move move, boolean forward) {
+	public void setAnimMove(PositionImpl sourcePos, MoveImpl move, boolean forward) {
 		Log.d(TAG, "setAnimMove :: sourcePos=" + sourcePos + ",move=" + move
 				+ ",forward=" + forward);
 	}
@@ -250,7 +250,7 @@ public class ChessboardUIController extends
 	}
 
 	@Override
-	public void localMoveMade(Move m) {
+	public void localMoveMade(MoveImpl m) {
 		Log.d(TAG,
 				"localMoveMade :: m="
 						+ m

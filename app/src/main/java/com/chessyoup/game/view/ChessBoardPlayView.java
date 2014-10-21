@@ -26,11 +26,11 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.widget.Toast;
 
-import com.chessyoup.model.Move;
+import com.chessyoup.model.MoveImpl;
 import com.chessyoup.model.MoveGen;
 import com.chessyoup.model.Pair;
-import com.chessyoup.model.Piece;
-import com.chessyoup.model.Position;
+import com.chessyoup.model.PieceImpl;
+import com.chessyoup.model.PositionImpl;
 import com.chessyoup.model.TextIO;
 import com.chessyoup.model.pgn.PGNOptions;
 
@@ -78,26 +78,26 @@ public class ChessBoardPlayView extends ChessBoardView {
         y0 = landScape ? 0 : (height - sqSize * 8) / 2;
     }
     @Override
-    protected int getXFromSq(int sq) { return Position.getX(sq); }
+    protected int getXFromSq(int sq) { return PositionImpl.getX(sq); }
     @Override
-    protected int getYFromSq(int sq) { return Position.getY(sq); }
+    protected int getYFromSq(int sq) { return PositionImpl.getY(sq); }
 
     @Override
     protected int minValidY() { return 0; }
     @Override
     protected int maxValidX() { return 7; }
     @Override
-    protected int getSquare(int x, int y) { return Position.getSquare(x, y); }
+    protected int getSquare(int x, int y) { return PositionImpl.getSquare(x, y); }
 
     @Override
     protected void drawExtraSquares(Canvas canvas) {
     }
 
     private final boolean myColor(int piece) {
-        return (piece != Piece.EMPTY) && (Piece.isWhite(piece) == pos.whiteMove);
+        return (piece != PieceImpl.EMPTY) && (PieceImpl.isWhite(piece) == pos.whiteMove);
     }
 
-    public Move mousePressed(int sq) {
+    public MoveImpl mousePressed(int sq) {
         if (sq < 0)
             return null;
         cursorVisible = false;
@@ -113,7 +113,7 @@ public class ChessBoardPlayView extends ChessBoardView {
                     return null;
                 }
                 if (!myColor(p)) {
-                    Move m = new Move(selectedSquare, sq, Piece.EMPTY);
+                    MoveImpl m = new MoveImpl(selectedSquare, sq, PieceImpl.EMPTY);
                     setSelection(sq);
                     userSelectedSquare = false;
                     return m;
@@ -130,13 +130,13 @@ public class ChessBoardPlayView extends ChessBoardView {
                     setSelection(-1);
                 return null;
             }
-            ArrayList<Move> moves = new MoveGen().legalMoves(pos);
-            Move matchingMove = null;
+            ArrayList<MoveImpl> moves = new MoveGen().legalMoves(pos);
+            MoveImpl matchingMove = null;
             if (prevSq >= 0)
                 matchingMove = matchingMove(prevSq, sq, moves).first;
             boolean anyMatch = false;
             if  (matchingMove == null) {
-                Pair<Move, Boolean> match = matchingMove(-1, sq, moves);
+                Pair<MoveImpl, Boolean> match = matchingMove(-1, sq, moves);
                 matchingMove = match.first;
                 anyMatch = match.second;
             }
@@ -168,10 +168,10 @@ public class ChessBoardPlayView extends ChessBoardView {
      * @return      Matching move if unique.
      *              Boolean indicating if there was at least one match.
      */
-    private final Pair<Move, Boolean> matchingMove(int sq1, int sq2, ArrayList<Move> moves) {
-        Move matchingMove = null;
+    private final Pair<MoveImpl, Boolean> matchingMove(int sq1, int sq2, ArrayList<MoveImpl> moves) {
+        MoveImpl matchingMove = null;
         boolean anyMatch = false;
-        for (Move m : moves) {
+        for (MoveImpl m : moves) {
             boolean match;
             if (sq1 == -1)
                 match = (m.from == sq2) || (m.to == sq2);
@@ -185,7 +185,7 @@ public class ChessBoardPlayView extends ChessBoardView {
                 } else {
                     if ((matchingMove.from == m.from) &&
                         (matchingMove.to == m.to)) {
-                        matchingMove.promoteTo = Piece.EMPTY;
+                        matchingMove.promoteTo = PieceImpl.EMPTY;
                     } else {
                         matchingMove = null;
                         break;
@@ -193,6 +193,6 @@ public class ChessBoardPlayView extends ChessBoardView {
                 }
             }
         }
-        return new Pair<Move, Boolean>(matchingMove, anyMatch);
+        return new Pair<MoveImpl, Boolean>(matchingMove, anyMatch);
     }
 }

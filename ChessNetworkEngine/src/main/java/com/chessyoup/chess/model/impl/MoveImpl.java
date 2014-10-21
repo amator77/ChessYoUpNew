@@ -57,18 +57,16 @@ public class MoveImpl implements Move {
 
     @Override
     public Square getSource() {
-        return Factory.getFactory().gets;
+        return Factory.getFactory().getSquare(from);
     }
 
     @Override
     public Square getDestination() {
-        return null;
+        return Factory.getFactory().getSquare(to);
     }
 
     @Override
-    public Piece.PieceType getPromotionPiece() {
-
-
-        return null;
+    public Piece getPromotionPiece() {
+        return Factory.getFactory().convertPiece(promoteTo);
     }
 }

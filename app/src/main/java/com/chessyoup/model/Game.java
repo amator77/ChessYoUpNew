@@ -71,8 +71,8 @@ public class Game {
     }
 
     /** Sets start position and discards the whole game tree. */
-    public final void setPos(Position pos) {
-        tree.setStartPos(new Position(pos));
+    public final void setPos(PositionImpl pos) {
+        tree.setStartPos(new PositionImpl(pos));
         updateTimeControl(false);
     }
 
@@ -91,15 +91,15 @@ public class Game {
 		this.rated = rated;
 	}
 
-	public final Position currPos() {
+	public final PositionImpl currPos() {
         return tree.currentPos;
     }
 
-    public final Position prevPos() {
-        Move m = tree.currentNode.move;
+    public final PositionImpl prevPos() {
+        MoveImpl m = tree.currentNode.move;
         if (m != null) {
             tree.goBack();
-            Position ret = new Position(currPos());
+            PositionImpl ret = new PositionImpl(currPos());
             tree.goForward(-1);
             return ret;
         } else {
@@ -107,10 +107,10 @@ public class Game {
         }
     }
 
-    public final Move getNextMove() {
+    public final MoveImpl getNextMove() {
         if (canRedoMove()) {
             tree.goForward(-1);
-            Move ret = tree.currentNode.move;
+            MoveImpl ret = tree.currentNode.move;
             tree.goBack();
             return ret;
         } else {
@@ -132,14 +132,14 @@ public class Game {
             handleDrawCmd(drawCmd);
             return true;
         } else if (str.equals("resign")) {
-            addToGameTree(new Move(0, 0, 0), "resign");            
+            addToGameTree(new MoveImpl(0, 0, 0), "resign");
             return true;
         }else if(str.startsWith("abort")){
-        	addToGameTree(new Move(0, 0, 0), "abort");
+        	addToGameTree(new MoveImpl(0, 0, 0), "abort");
             return true;
     	}    	        
 
-        Move m = TextIO.UCIstringToMove(str);
+        MoveImpl m = TextIO.UCIstringToMove(str);
         
         if (m != null)
             if (!TextIO.isValid(currPos(), m)){            	
@@ -154,9 +154,9 @@ public class Game {
         return true;
     }
 
-    private final void addToGameTree(Move m, String playerAction) {
-        if (m.equals(new Move(0, 0, 0))) { // Don't create more than one game-ending move at a node
-            List<Move> varMoves = tree.variations();
+    private final void addToGameTree(MoveImpl m, String playerAction) {
+        if (m.equals(new MoveImpl(0, 0, 0))) { // Don't create more than one game-ending move at a node
+            List<MoveImpl> varMoves = tree.variations();
             for (int i = varMoves.size() - 1; i >= 0; i--) {
                 if (varMoves.get(i).equals(m)) {
                     tree.deleteVariation(i);
@@ -167,7 +167,7 @@ public class Game {
         boolean movePresent = false;
         int varNo;
         {
-            ArrayList<Move> varMoves = tree.variations();
+            ArrayList<MoveImpl> varMoves = tree.variations();
             int nVars = varMoves.size();
             if (addMoveBehavior == AddMoveBehavior.REPLACE) {
                 boolean modified = false;
@@ -205,7 +205,7 @@ public class Game {
     }
 
     private final void updateTimeControl(boolean discardElapsed) {
-        Position currPos = currPos();
+        PositionImpl currPos = currPos();
         int move = currPos.fullMoveCounter;
         boolean wtm = currPos.whiteMove;
         if (discardElapsed || (move != timeController.currentMove) || (wtm != timeController.whiteToMove)) {
@@ -237,7 +237,7 @@ public class Game {
     /**
      * Get the last played move, or null if no moves played yet.
      */
-    public final Move getLastMove() {
+    public final MoveImpl getLastMove() {
         return tree.currentNode.move;
     }
 
@@ -343,7 +343,7 @@ public class Game {
     }
 
     public final void undoMove() {
-        Move m = tree.currentNode.move;
+        MoveImpl m = tree.currentNode.move;
         if (m != null) {
             tree.goBack();
             pendingDrawOffer = false;
@@ -381,12 +381,12 @@ public class Game {
      * Return the last zeroing position and a list of moves
      * to go from that position to the current position.
      */
-    public final Pair<Position, ArrayList<Move>> getUCIHistory() {
+    public final Pair<PositionImpl, ArrayList<MoveImpl>> getUCIHistory() {
         Pair<List<Node>, Integer> ml = tree.getMoveList();
         List<Node> moveList = ml.first;
-        Position pos = new Position(tree.startPos);
-        ArrayList<Move> mList = new ArrayList<Move>();
-        Position currPos = new Position(pos);
+        PositionImpl pos = new PositionImpl(tree.startPos);
+        ArrayList<MoveImpl> mList = new ArrayList<MoveImpl>();
+        PositionImpl currPos = new PositionImpl(pos);
         UndoInfo ui = new UndoInfo();
         int nMoves = ml.second;
         for (int i = 0; i < nMoves; i++) {
@@ -394,18 +394,18 @@ public class Game {
             mList.add(n.move);
             currPos.makeMove(n.move, ui);
             if (currPos.halfMoveClock == 0) {
-                pos = new Position(currPos);
+                pos = new PositionImpl(currPos);
                 mList.clear();
             }
         }
-        return new Pair<Position, ArrayList<Move>>(pos, mList);
+        return new Pair<PositionImpl, ArrayList<MoveImpl>>(pos, mList);
     }
 
     private final void handleDrawCmd(String drawCmd) {    	
-        Position pos = tree.currentPos;
+        PositionImpl pos = tree.currentPos;
         if (drawCmd.startsWith("rep") || drawCmd.startsWith("50")) {
             boolean rep = drawCmd.startsWith("rep");
-            Move m = null;
+            MoveImpl m = null;
             String ms = null;
             int firstSpace = drawCmd.indexOf(" ");
             if (firstSpace >= 0) {
@@ -419,14 +419,14 @@ public class Game {
                 valid = false;
                 UndoInfo ui = new UndoInfo();
                 int repetitions = 0;
-                Position posToCompare = new Position(tree.currentPos);
+                PositionImpl posToCompare = new PositionImpl(tree.currentPos);
                 if (m != null) {
                     posToCompare.makeMove(m, ui);
                     repetitions = 1;
                 }
                 Pair<List<Node>, Integer> ml = tree.getMoveList();
                 List<Node> moveList = ml.first;
-                Position tmpPos = new Position(tree.startPos);
+                PositionImpl tmpPos = new PositionImpl(tree.startPos);
                 if (tmpPos.drawRuleEquals(posToCompare))
                     repetitions++;
                 int nMoves = ml.second;
@@ -440,7 +440,7 @@ public class Game {
                 if (repetitions >= 3)
                     valid = true;
             } else {
-                Position tmpPos = new Position(pos);
+                PositionImpl tmpPos = new PositionImpl(pos);
                 if (m != null) {
                     UndoInfo ui = new UndoInfo();
                     tmpPos.makeMove(m, ui);
@@ -451,7 +451,7 @@ public class Game {
                 String playerAction = rep ? "draw rep" : "draw 50";
                 if (m != null)
                     playerAction += " " + TextIO.moveToString(pos, m, false, false);
-                addToGameTree(new Move(0, 0, 0), playerAction);
+                addToGameTree(new MoveImpl(0, 0, 0), playerAction);
             } else {
                 pendingDrawOffer = true;
                 if (m != null) {
@@ -466,7 +466,7 @@ public class Game {
             }
         } else if (drawCmd.equals("accept")) {        	
             if (pendingDrawOffer){
-                addToGameTree(new Move(0, 0, 0), "draw accept");
+                addToGameTree(new MoveImpl(0, 0, 0), "draw accept");
                 pendingDrawOffer = false;
             }
         }

@@ -23,7 +23,7 @@ public class GameTree {
     public String event, site, date, round, white, black;
     // Result is the last tag pair in the STR, but it is computed on demand from the game tree.
 
-    Position startPos;
+    PositionImpl startPos;
     private String timeControl;
 
     // Non-standard tags
@@ -35,7 +35,7 @@ public class GameTree {
 
     public Node rootNode;
     public Node currentNode;
-    public Position currentPos;    // Cached value. Computable from "currentNode".
+    public PositionImpl currentPos;    // Cached value. Computable from "currentNode".
 
     private final PgnTokenReceiver gameStateListener;
 
@@ -57,7 +57,7 @@ public class GameTree {
     }
 
     /** Set start position. Drops the whole game tree. */
-    final void setStartPos(Position pos) {
+    final void setStartPos(PositionImpl pos) {
         event = "?";
         site = "?";
         {
@@ -75,7 +75,7 @@ public class GameTree {
         tagPairs = new ArrayList<TagPair>();
         rootNode = new Node();
         currentNode = rootNode;
-        currentPos = new Position(startPos);
+        currentPos = new PositionImpl(startPos);
         updateListener();
     }
 
@@ -221,7 +221,7 @@ public class GameTree {
             int last = currPath.size() - 1;
             int currChild = currPath.get(last);
             if (currChild == 0) {
-                ArrayList<Move> moves = MoveGen.instance.legalMoves(currentPos);
+                ArrayList<MoveImpl> moves = MoveGen.instance.legalMoves(currentPos);
                 currentNode.verifyChildren(currentPos, moves);
                 int nc = currentNode.children.size();
                 for (int i = 0; i < nc; i++) {
@@ -631,7 +631,7 @@ public class GameTree {
             white = dis.readUTF();
             black = dis.readUTF();
             startPos = TextIO.readFEN(dis.readUTF());
-            currentPos = new Position(startPos);
+            currentPos = new PositionImpl(startPos);
             timeControl = dis.readUTF();
             int nTags = dis.readInt();
             tagPairs.clear();
@@ -702,10 +702,10 @@ public class GameTree {
     }
 
     /** List of possible continuation moves. */
-    public final ArrayList<Move> variations() {
+    public final ArrayList<MoveImpl> variations() {
         if (currentNode.verifyChildren(currentPos))
             updateListener();
-        ArrayList<Move> ret = new ArrayList<Move>();
+        ArrayList<MoveImpl> ret = new ArrayList<MoveImpl>();
         for (Node child : currentNode.children)
             ret.add(child.move);
         return ret;
@@ -719,8 +719,8 @@ public class GameTree {
             updateListener();
         int idx = currentNode.children.size();
         Node node = new Node(currentNode, moveStr, playerAction, Integer.MIN_VALUE, nag, preComment, postComment);
-        Move move = TextIO.UCIstringToMove(moveStr);
-        ArrayList<Move> moves = null;
+        MoveImpl move = TextIO.UCIstringToMove(moveStr);
+        ArrayList<MoveImpl> moves = null;
         if (move == null) {
             moves = MoveGen.instance.legalMoves(currentPos);
             move = TextIO.stringToMove(currentPos, moveStr, moves);
@@ -787,7 +787,7 @@ public class GameTree {
         Collections.reverse(ret);
         int numMovesPlayed = ret.size();
         node = currentNode;
-        Position pos = new Position(currentPos);
+        PositionImpl pos = new PositionImpl(currentPos);
         UndoInfo ui = new UndoInfo();
         boolean changed = false;
         while (true) {
@@ -833,7 +833,7 @@ public class GameTree {
     }
 
     final GameState getGameState() {
-        Position pos = currentPos;
+        PositionImpl pos = currentPos;
         String action = currentNode.playerAction;        
         if (action.equals("resign")) {
             // Player made null move to resign, causing whiteMove to toggle          
@@ -843,7 +843,7 @@ public class GameTree {
         	return GameState.ABORTED;
         }
         
-        ArrayList<Move> moves = new MoveGen().legalMoves(pos);
+        ArrayList<MoveImpl> moves = new MoveGen().legalMoves(pos);
         if (moves.size() == 0) {
             if (MoveGen.inCheck(pos)) {
                 return pos.whiteMove ? GameState.BLACK_MATE : GameState.WHITE_MATE;
@@ -880,16 +880,16 @@ public class GameTree {
         if (localized) {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < ret.length(); i++) {
-                int p = Piece.EMPTY;
+                int p = PieceImpl.EMPTY;
                 switch (ret.charAt(i)) {
-                case 'Q': p = Piece.WQUEEN;  break;
-                case 'R': p = Piece.WROOK;   break;
-                case 'B': p = Piece.WBISHOP; break;
-                case 'N': p = Piece.WKNIGHT; break;
-                case 'K': p = Piece.WKING;   break;
-                case 'P': p = Piece.WPAWN;   break;
+                case 'Q': p = PieceImpl.WQUEEN;  break;
+                case 'R': p = PieceImpl.WROOK;   break;
+                case 'B': p = PieceImpl.WBISHOP; break;
+                case 'N': p = PieceImpl.WKNIGHT; break;
+                case 'K': p = PieceImpl.WKING;   break;
+                case 'P': p = PieceImpl.WPAWN;   break;
                 }
-                if (p == Piece.EMPTY)
+                if (p == PieceImpl.EMPTY)
                     sb.append(ret.charAt(i));
                 else
                     sb.append(TextIO.pieceToCharLocalized(p));
@@ -924,17 +924,17 @@ public class GameTree {
         return gameResult;
     }
 
-    private static final boolean insufficientMaterial(Position pos) {
-        if (pos.nPieces(Piece.WQUEEN) > 0) return false;
-        if (pos.nPieces(Piece.WROOK)  > 0) return false;
-        if (pos.nPieces(Piece.WPAWN)  > 0) return false;
-        if (pos.nPieces(Piece.BQUEEN) > 0) return false;
-        if (pos.nPieces(Piece.BROOK)  > 0) return false;
-        if (pos.nPieces(Piece.BPAWN)  > 0) return false;
-        int wb = pos.nPieces(Piece.WBISHOP);
-        int wn = pos.nPieces(Piece.WKNIGHT);
-        int bb = pos.nPieces(Piece.BBISHOP);
-        int bn = pos.nPieces(Piece.BKNIGHT);
+    private static final boolean insufficientMaterial(PositionImpl pos) {
+        if (pos.nPieces(PieceImpl.WQUEEN) > 0) return false;
+        if (pos.nPieces(PieceImpl.WROOK)  > 0) return false;
+        if (pos.nPieces(PieceImpl.WPAWN)  > 0) return false;
+        if (pos.nPieces(PieceImpl.BQUEEN) > 0) return false;
+        if (pos.nPieces(PieceImpl.BROOK)  > 0) return false;
+        if (pos.nPieces(PieceImpl.BPAWN)  > 0) return false;
+        int wb = pos.nPieces(PieceImpl.WBISHOP);
+        int wn = pos.nPieces(PieceImpl.WKNIGHT);
+        int bb = pos.nPieces(PieceImpl.BBISHOP);
+        int bn = pos.nPieces(PieceImpl.BKNIGHT);
         if (wb + wn + bb + bn <= 1) {
             return true;    // King + bishop/knight vs king is draw
         }
@@ -944,9 +944,9 @@ public class GameTree {
             boolean wSquare = false;
             for (int x = 0; x < 8; x++) {
                 for (int y = 0; y < 8; y++) {
-                    int p = pos.getPiece(Position.getSquare(x, y));
-                    if ((p == Piece.BBISHOP) || (p == Piece.WBISHOP)) {
-                        if (Position.darkSquare(x, y)) {
+                    int p = pos.getPiece(PositionImpl.getSquare(x, y));
+                    if ((p == PieceImpl.BBISHOP) || (p == PieceImpl.WBISHOP)) {
+                        if (PositionImpl.darkSquare(x, y)) {
                             bSquare = true;
                         } else {
                             wSquare = true;
@@ -988,7 +988,7 @@ public class GameTree {
     public static class Node {
         String moveStr;             // String representation of move leading to this node. Empty string in root node.
         public String moveStrLocal;        // Localized version of moveStr
-        Move move;                  // Computed on demand for better PGN parsing performance.
+        MoveImpl move;                  // Computed on demand for better PGN parsing performance.
                                     // Subtrees of invalid moves will be dropped when detected.
                                     // Always valid for current node.
         private UndoInfo ui;        // Computed when move is computed
@@ -1039,16 +1039,16 @@ public class GameTree {
         }
 
         /** nodePos must represent the same position as this Node object. */
-        private final boolean verifyChildren(Position nodePos) {
+        private final boolean verifyChildren(PositionImpl nodePos) {
             return verifyChildren(nodePos, null);
         }
-        private final boolean verifyChildren(Position nodePos, ArrayList<Move> moves) {
+        private final boolean verifyChildren(PositionImpl nodePos, ArrayList<MoveImpl> moves) {
             boolean anyToRemove = false;
             for (Node child : children) {
                 if (child.move == null) {
                     if (moves == null)
                         moves = MoveGen.instance.legalMoves(nodePos);
-                    Move move = TextIO.stringToMove(nodePos, child.moveStr, moves);
+                    MoveImpl move = TextIO.stringToMove(nodePos, child.moveStr, moves);
                     if (move != null) {
                         child.moveStr      = TextIO.moveToString(nodePos, move, false, false, moves);
                         child.moveStrLocal = TextIO.moveToString(nodePos, move, false, true, moves);
@@ -1123,7 +1123,7 @@ public class GameTree {
                 if (from >= 0) {
                     int to = dis.readByte();
                     int prom = dis.readByte();
-                    node.move = new Move(from, to, prom);
+                    node.move = new MoveImpl(from, to, prom);
                     node.ui = new UndoInfo();
                 }
                 node.playerAction = dis.readUTF();
@@ -1194,7 +1194,7 @@ public class GameTree {
                     String str;
                     if (options.exp.pieceType == PGNOptions.PT_ENGLISH) {
                         str = moveStr;
-                        if (options.exp.pgnPromotions && (move != null) && (move.promoteTo != Piece.EMPTY))
+                        if (options.exp.pgnPromotions && (move != null) && (move.promoteTo != PieceImpl.EMPTY))
                             str = TextIO.pgnPromotion(str);
                     } else {
                         str = moveStrLocal;

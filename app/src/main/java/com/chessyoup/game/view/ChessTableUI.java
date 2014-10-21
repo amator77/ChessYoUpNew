@@ -1,39 +1,5 @@
 package com.chessyoup.game.view;
 
-import java.util.ArrayList;
-
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.os.Handler;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.ViewPager;
-import android.text.Layout;
-import android.util.Log;
-import android.view.GestureDetector;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
-import android.widget.ImageButton;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.chessyoup.R;
-import com.chessyoup.chessboard.ChessboardController;
-import com.chessyoup.chessboard.ChessboardStatus;
-import com.chessyoup.chessboard.ChessboardUIInterface;
-import com.chessyoup.model.Game;
-import com.chessyoup.model.Game.GameState;
-import com.chessyoup.model.Move;
-import com.chessyoup.model.Position;
-import com.chessyoup.model.TextIO;
-import com.chessyoup.model.pgn.PGNOptions;
-import com.chessyoup.ui.fragment.FragmentChat;
-import com.chessyoup.ui.fragment.FragmentGame;
-import com.chessyoup.ui.fragment.FragmentAdapter;
-
 public class ChessTableUI {
 //    implements ChessboardUIInterface,Runnable {
 //

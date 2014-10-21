@@ -20,13 +20,25 @@ public interface Chessboard {
      * Get the chess tree for this chessboard.
      * @return
      */
-    public Tree getTree();
+    public Tree getMovesTree();
 
     /**
-     * Get the chessboard (8X8) squares.
+     *
      * @return
      */
-    public Square[][] getSquares();
+    public Square getSquare(char file , int rank);
+
+//    /**
+//     * Get the square at x,y ( a1 is 0,0 , h8 is 7,7)
+//     * @return
+//     */
+//    public Square getSquare(int x , int y);
+
+    /**
+     * Get the square at index ( a8 is 0 , h1 is 63)
+     * @return
+     */
+    public Square getSquare(int index);
 
     /**
      * Get current position on the chessboard

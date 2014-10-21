@@ -8,10 +8,10 @@ import com.chessyoup.model.ChessParseError;
 import com.chessyoup.model.Game;
 import com.chessyoup.model.Game.GameState;
 import com.chessyoup.model.GameTree.Node;
-import com.chessyoup.model.Move;
+import com.chessyoup.model.MoveImpl;
 import com.chessyoup.model.MoveGen;
-import com.chessyoup.model.Piece;
-import com.chessyoup.model.Position;
+import com.chessyoup.model.PieceImpl;
+import com.chessyoup.model.PositionImpl;
 import com.chessyoup.model.TextIO;
 import com.chessyoup.model.pgn.PGNOptions;
 import com.chessyoup.model.pgn.PgnTokenReceiver;
@@ -36,7 +36,7 @@ public class ChessboardController {
 
 	private boolean guiPaused = false;
 
-	private Move promoteMove;
+	private MoveImpl promoteMove;
 	
 	private boolean drawRequested;
 
@@ -193,7 +193,7 @@ public class ChessboardController {
 		Game newGame = new Game(gameTextListener, timeControl, movesPerSession,
 				timeIncrement);
 		try {
-			Position pos = TextIO.readFEN(fenPgn);
+			PositionImpl pos = TextIO.readFEN(fenPgn);
 			newGame.setPos(pos);
 			setPlayerNames(newGame);
 		} catch (ChessParseError e) {
@@ -219,9 +219,9 @@ public class ChessboardController {
 	}
 
 	/** Make a move for a human player. */
-	public final synchronized void makeLocalMove(Move m) {
+	public final synchronized void makeLocalMove(MoveImpl m) {
 		if (localTurn()) {
-			Position oldPos = new Position(game.currPos());
+			PositionImpl oldPos = new PositionImpl(game.currPos());
 			if (doMove(m)) {
 				gui.localMoveMade(m);
 				setAnimMove(oldPos, m, true);
@@ -245,20 +245,20 @@ public class ChessboardController {
 		int promoteTo;
 		switch (choice) {
 		case 1:
-			promoteTo = white ? Piece.WROOK : Piece.BROOK;
+			promoteTo = white ? PieceImpl.WROOK : PieceImpl.BROOK;
 			break;
 		case 2:
-			promoteTo = white ? Piece.WBISHOP : Piece.BBISHOP;
+			promoteTo = white ? PieceImpl.WBISHOP : PieceImpl.BBISHOP;
 			break;
 		case 3:
-			promoteTo = white ? Piece.WKNIGHT : Piece.BKNIGHT;
+			promoteTo = white ? PieceImpl.WKNIGHT : PieceImpl.BKNIGHT;
 			break;
 		default:
-			promoteTo = white ? Piece.WQUEEN : Piece.BQUEEN;
+			promoteTo = white ? PieceImpl.WQUEEN : PieceImpl.BQUEEN;
 			break;
 		}
 		promoteMove.promoteTo = promoteTo;
-		Move m = promoteMove;
+		MoveImpl m = promoteMove;
 		promoteMove = null;
 		makeLocalMove(m);
 	}
@@ -504,9 +504,9 @@ public class ChessboardController {
 	 *            If true, make this the default variation.
 	 */
 	public final synchronized void addVariation(String preComment,
-			List<Move> pvMoves, boolean updateDefault) {
+			List<MoveImpl> pvMoves, boolean updateDefault) {
 		for (int i = 0; i < pvMoves.size(); i++) {
-			Move m = pvMoves.get(i);
+			MoveImpl m = pvMoves.get(i);
 			String moveStr = TextIO.moveToUCIString(m);
 			String pre = (i == 0) ? preComment : "";
 			int varNo = game.tree.addMove(moveStr, "", 0, pre, "");
@@ -611,7 +611,7 @@ public class ChessboardController {
 	
 	public void makeRemoteMove(final String cmd , int thinkingTime) {	    
 	    this.getGame().timeController.setRemoteElapsed(thinkingTime);
-		Position oldPos = new Position(game.currPos());
+		PositionImpl oldPos = new PositionImpl(game.currPos());
 		game.processString(cmd);		
 		updateGameMode();		
 		setSelection();
@@ -684,13 +684,13 @@ public class ChessboardController {
 	 * 
 	 * @return True if the move was legal, false otherwise.
 	 */
-	private final boolean doMove(Move move) {
-		Position pos = game.currPos();
-		ArrayList<Move> moves = new MoveGen().legalMoves(pos);
+	private final boolean doMove(MoveImpl move) {
+		PositionImpl pos = game.currPos();
+		ArrayList<MoveImpl> moves = new MoveGen().legalMoves(pos);
 		int promoteTo = move.promoteTo;
-		for (Move m : moves) {
+		for (MoveImpl m : moves) {
 			if ((m.from == move.from) && (m.to == move.to)) {
-				if ((m.promoteTo != Piece.EMPTY) && (promoteTo == Piece.EMPTY)) {
+				if ((m.promoteTo != PieceImpl.EMPTY) && (promoteTo == PieceImpl.EMPTY)) {
 					promoteMove = m;
 					gui.requestPromotePiece();
 					return false;
@@ -748,12 +748,12 @@ public class ChessboardController {
 
 	/** Mark last played move in the GUI. */
 	private final void setSelection() {
-		Move m = game.getLastMove();
+		MoveImpl m = game.getLastMove();
 		int sq = ((m != null) && (m.from != m.to)) ? m.to : -1;
 		gui.setSelection(sq);
 	}
 
-	private void setAnimMove(Position sourcePos, Move move, boolean forward) {
+	private void setAnimMove(PositionImpl sourcePos, MoveImpl move, boolean forward) {
 		gui.setAnimMove(sourcePos, move, forward);
 	}
 

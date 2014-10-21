@@ -20,12 +20,6 @@ public interface Node {
     public boolean isMain();
 
     /**
-     * Node position.
-     * @return
-     */
-    public Position getPosition();
-
-    /**
      * Parent position of this node. This is null for the root position of the game.
      * @return
      */

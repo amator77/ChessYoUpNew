@@ -1,7 +1,7 @@
 package com.chessyoup.model;
 
 
-public class Piece {
+public class PieceImpl {
     public static final int EMPTY = 0;
 
     public static final int WKING = 1;

@@ -1,14 +1,16 @@
 package com.chessyoup.chess.model.impl;
 
 import com.chessyoup.chess.model.Chessboard;
-import com.chessyoup.chess.model.Color;
 import com.chessyoup.chess.model.Factory;
 import com.chessyoup.chess.model.Move;
 import com.chessyoup.chess.model.Node;
-import com.chessyoup.chess.model.Position;
 import com.chessyoup.chess.model.Square;
 import com.chessyoup.chess.model.Tree;
+import com.chessyoup.chess.model.exception.ChessParseError;
 import com.chessyoup.chess.model.exception.IllegalMoveException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by leo on 17.10.2014.
@@ -17,51 +19,72 @@ public class ChessboardImpl implements Chessboard {
 
     private Tree tree;
 
-    private static final Square[][] squares = new Square[8][8];
+    private PositionImpl position;
 
-    static {
-        int c = 1;
-        Color squareColor = Color.BLACK;
+    private List<ChessboardListener> listeners;
 
-        for (int f = 97; f <= 104; f++) {
-            for (int r = 1; r <= 8; r++) {
-                squares[7 - (104 - f)][8 - r] = Factory.getFactory().getSquare(squareColor, (char) f, r);
-                squareColor =  (squareColor == Color.BLACK) ? Color.WHITE : Color.BLACK;
+    public ChessboardImpl() {
+        this.tree = new TreeImpl(new NodeImpl());
 
-                if( c++ % 8 == 0  ){
-                    squareColor =  (squareColor == Color.BLACK) ? Color.WHITE : Color.BLACK;
-                }
-            }
+        try {
+            this.position = new PositionImpl(TextIO.readFEN(TextIO.startPosFEN));
+        } catch (ChessParseError chessParseError) {
+            chessParseError.printStackTrace();
+        }
+
+        this.listeners = new ArrayList<ChessboardListener>();
+    }
+
+    public void addChessboardListener(ChessboardListener listener){
+        if( !this.listeners.contains(listener)){
+            this.listeners.add(listener);
         }
     }
 
-    public ChessboardImpl() {
-        this.tree = new TreeImpl(new NodeImpl(Factory.getFactory().getStartPosition()));
+    public void removeChessboardListener(ChessboardListener listener){
+        if( this.listeners.contains(listener)){
+            this.listeners.remove(listener);
+        }
     }
 
     @Override
-    public Tree getTree() {
+    public Tree getMovesTree() {
         return this.tree;
     }
 
-    @Override
-    public Square[][] getSquares() {
-        return ChessboardImpl.squares;
+    /**
+     * @return
+     */
+    public Square getSquare(char file, int rank) {
+        return Factory.getFactory().getSquare(file, rank);
+    }
+
+    /**
+     * Get the square at index ( a8 is 0 , h1 is 63)
+     *
+     * @return
+     */
+    public Square getSquare(int index) {
+        return Factory.getFactory().getSquare(index);
     }
 
     @Override
-    public Position getPosition() {
-        return this.tree.getSelectedNode().getPosition();
+    public PositionImpl getPosition() {
+        return this.position;
     }
 
     @Override
     public void doMove(Move move) throws IllegalMoveException {
-        //TODO
+        this.doMove(move,false);
     }
 
     @Override
     public void doMove(Move move, boolean silent) throws IllegalMoveException {
-        //TODO
+        this.position.makeMove(new MoveImpl(move.getSource().getIndex(), move.getDestination().getIndex(), Factory.getFactory().convertPiece(move.getPromotionPiece())), new UndoInfo());
+
+        if( !silent ){
+            fireChangeEvent();
+        }
     }
 
     @Override
@@ -71,7 +94,15 @@ public class ChessboardImpl implements Chessboard {
 
     @Override
     public void reset() {
-        //TODO
+        this.tree = new TreeImpl(new NodeImpl());
+
+        try {
+            this.position = new PositionImpl(TextIO.readFEN(TextIO.startPosFEN));
+        } catch (ChessParseError chessParseError) {
+            chessParseError.printStackTrace();
+        }
+
+        fireChangeEvent();
     }
 
     @Override
@@ -89,7 +120,15 @@ public class ChessboardImpl implements Chessboard {
         //TODO
     }
 
+    private void fireChangeEvent(){
+        for(ChessboardListener listener : listeners){
+            listener.onChange(this);
+        }
+    }
+
     public static void main(String[] args) {
-        new ChessboardImpl();
+        ChessboardImpl impl =  new ChessboardImpl();
+        System.out.println( TextIO.asciiBoard(impl.getPosition()));
+        System.out.println( impl.getPosition().getPieceAt('a',2) );
     }
 }
