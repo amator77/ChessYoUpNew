@@ -73,9 +73,9 @@ public class PieceImpl implements Piece {
     }
 
     private Color color;
-    private PieceType type;
+    private Type type;
 
-    public PieceImpl(Color color , PieceType type){
+    public PieceImpl(Color color , Type type){
         this.color = color;
         this.type = type;
     }
@@ -86,7 +86,7 @@ public class PieceImpl implements Piece {
     }
 
     @Override
-    public PieceType getType() {
+    public Type getType() {
         return this.type;
     }
 

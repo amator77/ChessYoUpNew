@@ -2,11 +2,11 @@ package com.chessyoup.chess.model;
 
 public interface Piece {
 
-	public enum PieceType {
-		KING, QUEEN, ROOK, KNIGHT, BISHOP, PAWN
+	public enum Type {
+		KING, QUEEN, ROOK, KNIGHT, BISHOP, PAWN , NONE
 	}
 
 	public Color getColor();
 
-	public PieceType getType();
+	public Type getType();
 }

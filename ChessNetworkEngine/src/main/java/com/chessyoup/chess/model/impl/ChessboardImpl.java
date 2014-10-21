@@ -59,15 +59,6 @@ public class ChessboardImpl implements Chessboard {
         return Factory.getFactory().getSquare(file, rank);
     }
 
-    /**
-     * Get the square at index ( a8 is 0 , h1 is 63)
-     *
-     * @return
-     */
-    public Square getSquare(int index) {
-        return Factory.getFactory().getSquare(index);
-    }
-
     @Override
     public PositionImpl getPosition() {
         return this.position;
@@ -80,7 +71,8 @@ public class ChessboardImpl implements Chessboard {
 
     @Override
     public void doMove(Move move, boolean silent) throws IllegalMoveException {
-        this.position.makeMove(new MoveImpl(move.getSource().getIndex(), move.getDestination().getIndex(), Factory.getFactory().convertPiece(move.getPromotionPiece())), new UndoInfo());
+
+        this.position.makeMove(Util.convertMove(move), new UndoInfo());
 
         if( !silent ){
             fireChangeEvent();
@@ -126,9 +118,15 @@ public class ChessboardImpl implements Chessboard {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IllegalMoveException {
         ChessboardImpl impl =  new ChessboardImpl();
         System.out.println( TextIO.asciiBoard(impl.getPosition()));
-        System.out.println( impl.getPosition().getPieceAt('a',2) );
+        System.out.println("color to move"+ impl.getPosition().getActiveColor() +" ,move nr :"+impl.getPosition().getFullMoveNumber());
+        impl.doMove( TextIO.stringToMove(impl.getPosition(),"e2e4") );
+        System.out.println( TextIO.asciiBoard(impl.getPosition()));
+        System.out.println("color to move"+ impl.getPosition().getActiveColor() +" ,move nr :"+impl.getPosition().getFullMoveNumber());
+        impl.doMove( TextIO.stringToMove(impl.getPosition(), "e7e5") );
+        System.out.println( TextIO.asciiBoard(impl.getPosition()));
+        System.out.println("color to move"+ impl.getPosition().getActiveColor() +" ,move nr :"+impl.getPosition().getFullMoveNumber());
     }
 }

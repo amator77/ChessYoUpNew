@@ -6,6 +6,7 @@ import com.chessyoup.chess.model.Piece;
 import com.chessyoup.chess.model.Position;
 import com.chessyoup.chess.model.Square;
 
+import java.awt.Point;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -411,13 +412,13 @@ public class PositionImpl implements Position {
 
     @Override
     public Piece getPieceAt(Square square) {
-        int index = square.getIndex();
-        return Util.convertPiece(getPiece( index ));
+       return getPieceAt(square.getFile(),square.getRank());
     }
 
     @Override
     public Piece getPieceAt(char file, int rank) {
-        return getPieceAt(Factory.getFactory().getSquare(file,rank));
+        int index = Util.getSquareRealIndex(file,rank-1);
+        return Util.convertPiece(getPiece( index ));
     }
 
     @Override
@@ -425,9 +426,10 @@ public class PositionImpl implements Position {
         return this.whiteMove ? Color.WHITE : Color.BLACK;
     }
 
+
     @Override
     public Square getEnpassantSquare() {
-        return Factory.getFactory().getSquare(getEpSquare());
+        return Util.getSquare(epSquare);
     }
 
     @Override

@@ -28,29 +28,11 @@ public interface Chessboard {
      */
     public Square getSquare(char file , int rank);
 
-//    /**
-//     * Get the square at x,y ( a1 is 0,0 , h8 is 7,7)
-//     * @return
-//     */
-//    public Square getSquare(int x , int y);
-
-    /**
-     * Get the square at index ( a8 is 0 , h1 is 63)
-     * @return
-     */
-    public Square getSquare(int index);
-
     /**
      * Get current position on the chessboard
      * @return
      */
     public Position getPosition();
-
-    /**
-     * Apply this move on current position.
-     * This will generate an event.
-     * @param move
-     */
 
     /**
      * Apply this move on current position.
