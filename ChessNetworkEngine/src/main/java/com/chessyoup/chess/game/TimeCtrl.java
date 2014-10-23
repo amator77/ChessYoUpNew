@@ -1,7 +1,7 @@
 package com.chessyoup.chess.game;
 
 
-public interface TimeControll {
+public interface TimeCtrl {
 		
 	public long getTime(); 
 		

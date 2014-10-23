@@ -23,6 +23,8 @@ public class ChessboardImpl implements Chessboard {
 
     private List<ChessboardListener> listeners;
 
+    private MODE mode;
+
     public ChessboardImpl() {
         this.tree = new TreeImpl(new NodeImpl());
 
@@ -33,6 +35,7 @@ public class ChessboardImpl implements Chessboard {
         }
 
         this.listeners = new ArrayList<ChessboardListener>();
+        this.mode = MODE.PLAY;
     }
 
     public void addChessboardListener(ChessboardListener listener){
@@ -45,6 +48,16 @@ public class ChessboardImpl implements Chessboard {
         if( this.listeners.contains(listener)){
             this.listeners.remove(listener);
         }
+    }
+
+    @Override
+    public MODE getMode() {
+        return null;
+    }
+
+    @Override
+    public void setMode(MODE mode) {
+        this.mode = mode;
     }
 
     @Override
@@ -72,10 +85,14 @@ public class ChessboardImpl implements Chessboard {
     @Override
     public void doMove(Move move, boolean silent) throws IllegalMoveException {
 
-        this.position.makeMove(Util.convertMove(move), new UndoInfo());
+        if( this.mode == MODE.PLAY) {
+            UndoInfo ui = new UndoInfo();
+            this.position.makeMove(Util.convertMove(move), ui);
+            this.tree.appendNode(new NodeImpl(this.tree.getSelectedNode(), move , ui));
 
-        if( !silent ){
-            fireChangeEvent();
+            if (!silent) {
+                fireChangeEvent();
+            }
         }
     }
 
@@ -99,17 +116,47 @@ public class ChessboardImpl implements Chessboard {
 
     @Override
     public void goToNode(Node node) {
-        //TODO
+        if( this.mode == MODE.ANALYSIS) {
+
+
+//            this.position.unMakeMove();
+        }
     }
 
     @Override
     public void goForward() {
-        //TODO
+
+        if( this.mode == MODE.ANALYSIS) {
+            Node selectedNode = this.tree.getSelectedNode();
+
+            if(selectedNode !=  null && selectedNode.getChilds().size() > 0 ){
+                for(Node child : selectedNode.getChilds()){
+                    if( child.isMain() ){
+                        tree.setSelectedNode(child);
+                        this.position.makeMove(Util.convertMove(child.getMove()), ((NodeImpl) child).getUi());
+                        this.fireChangeEvent();
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     @Override
     public void goBack() {
-        //TODO
+        if( this.mode == MODE.ANALYSIS) {
+            Node selectedNode = this.tree.getSelectedNode();
+
+            if(selectedNode !=  null && selectedNode.getParent() != null ){
+                NodeImpl parent = (NodeImpl)selectedNode.getParent();
+                tree.setSelectedNode(parent);
+
+                if( selectedNode.getParent().getMove() != null) {
+                    this.position.unMakeMove(Util.convertMove(parent.getMove()), parent.getUi());
+                    this.fireChangeEvent();
+                }
+            }
+        }
     }
 
     private void fireChangeEvent(){
@@ -119,14 +166,49 @@ public class ChessboardImpl implements Chessboard {
     }
 
     public static void main(String[] args) throws IllegalMoveException {
-        ChessboardImpl impl =  new ChessboardImpl();
-        System.out.println( TextIO.asciiBoard(impl.getPosition()));
-        System.out.println("color to move"+ impl.getPosition().getActiveColor() +" ,move nr :"+impl.getPosition().getFullMoveNumber());
+        final ChessboardImpl impl =  new ChessboardImpl();
+
+        impl.addChessboardListener(new ChessboardListener() {
+            @Override
+            public void onChange(Chessboard source) {
+                System.out.println( "On change event");
+                System.out.println( TextIO.asciiBoard(impl.getPosition()));
+                System.out.println( impl.getMovesTree().toString());
+                System.out.println("color to move"+ impl.getPosition().getActiveColor() +" ,move nr :"+impl.getPosition().getFullMoveNumber());
+            }
+
+            @Override
+            public void onResult(Chessboard source) {
+
+            }
+        });
+
         impl.doMove( TextIO.stringToMove(impl.getPosition(),"e2e4") );
-        System.out.println( TextIO.asciiBoard(impl.getPosition()));
-        System.out.println("color to move"+ impl.getPosition().getActiveColor() +" ,move nr :"+impl.getPosition().getFullMoveNumber());
         impl.doMove( TextIO.stringToMove(impl.getPosition(), "e7e5") );
-        System.out.println( TextIO.asciiBoard(impl.getPosition()));
-        System.out.println("color to move"+ impl.getPosition().getActiveColor() +" ,move nr :"+impl.getPosition().getFullMoveNumber());
+        impl.doMove( TextIO.stringToMove(impl.getPosition(), "g1f3") );
+        impl.doMove( TextIO.stringToMove(impl.getPosition(), "b8c6") );
+        impl.doMove( TextIO.stringToMove(impl.getPosition(), "f1b5") );
+        impl.doMove( TextIO.stringToMove(impl.getPosition(), "g8e7") );
+
+        System.out.println(".....................");
+        System.out.println(".....................");
+        System.out.println(".....................");
+        System.out.println(".....................");
+
+//        impl.setMode(MODE.ANALYSIS);
+//        impl.goBack();
+//        impl.goBack();
+//        impl.goBack();
+//        impl.goBack();
+//        impl.goBack();
+//        impl.goBack();
+//
+//        System.out.println(".....................");
+//        System.out.println(".....................");
+//        System.out.println(".....................");
+//        System.out.println(".....................");
+//        impl.goForward();
+
+        impl.reset();
     }
 }

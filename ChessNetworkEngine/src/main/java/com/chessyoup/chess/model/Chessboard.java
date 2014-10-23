@@ -16,6 +16,10 @@ public interface Chessboard {
         public void onResult(Chessboard source);
     }
 
+    public MODE getMode();
+
+    public void setMode(MODE mode);
+
     /**
      * Get the chess tree for this chessboard.
      * @return

@@ -2,12 +2,12 @@ package com.chessyoup.chess.game.impl;
 
 import com.chessyoup.chess.game.Clock;
 import com.chessyoup.chess.model.Color;
-import com.chessyoup.chess.game.TimeControll;
+import com.chessyoup.chess.game.TimeCtrl;
 
 public class ClockImpl implements Clock {
 
 	@Override
-	public TimeControll getTimeControll() {
+	public TimeCtrl getTimeControll() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -43,7 +43,7 @@ public class ClockImpl implements Clock {
 	}
 
 	@Override
-	public void reset(TimeControll timeControll) {
+	public void reset(TimeCtrl timeControll) {
 		// TODO Auto-generated method stub
 		
 	}

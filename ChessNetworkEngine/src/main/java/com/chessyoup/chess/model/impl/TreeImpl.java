@@ -3,6 +3,7 @@ package com.chessyoup.chess.model.impl;
 import com.chessyoup.chess.model.Node;
 import com.chessyoup.chess.model.Position;
 import com.chessyoup.chess.model.Tree;
+import com.chessyoup.chess.model.exception.ChessParseError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +58,38 @@ public class TreeImpl implements Tree {
         this.selectedNode = node;
     }
 
+    public String print(){
+        try {
+            StringBuffer sb = new StringBuffer();
+            List<Node> nodes = getTree();
+            PositionImpl pos = TextIO.readFEN(TextIO.startPosFEN);
+
+            int index = 1;
+            int count = 1;
+            for( Node node : nodes){
+                if( node.getMove() != null ) {
+
+                    MoveImpl move = Util.convertMove(node.getMove());
+                    pos.makeMove(move, new UndoInfo());
+                    String moveStr = TextIO.moveToUCIString(move);
+
+                    if( index++ % 2 != 0){
+                        sb.append( count++).append(".");
+                    }
+
+                    sb.append(moveStr);
+                    sb.append(" ");
+                }
+            }
+
+            return sb.toString();
+
+        } catch (ChessParseError chessParseError) {
+            chessParseError.printStackTrace();
+            return "";
+        }
+    }
+
     private void collectNodes(Node node, ArrayList<Node> list) {
         list.add(node);
 
@@ -66,5 +99,14 @@ public class TreeImpl implements Tree {
                 this.collectNodes(n, list);
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "TreeImpl{" +
+                "root=" + root +
+                ", selectedNode=" + selectedNode +
+                ", tree=" + print() +
+                '}';
     }
 }

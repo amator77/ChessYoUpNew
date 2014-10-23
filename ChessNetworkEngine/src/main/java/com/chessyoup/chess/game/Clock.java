@@ -18,7 +18,7 @@ public interface Clock {
 	
 	public enum STATE { NOT_RUNNING , RUNNING }
 	
-	public TimeControll getTimeControll();
+	public TimeCtrl getTimeControll();
 	
 	public STATE getState();
 	
@@ -30,7 +30,7 @@ public interface Clock {
 	
 	public Color getRunningColor(); 
 	
-	public void reset(TimeControll timeControll);
+	public void reset(TimeCtrl timeControll);
 	
 	public long getWhiteTime();
 	

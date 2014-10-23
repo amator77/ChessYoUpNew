@@ -21,6 +21,7 @@ public class NodeImpl implements Node {
     private long moveTime;
     private String preComment;
     private String postComment;
+    private UndoInfo ui; // Computed when move is computed
 
     public NodeImpl( Node parent, List<Node> childs, Move move, boolean main, Result result, long moveTime) {
         this.parent = parent;
@@ -37,6 +38,10 @@ public class NodeImpl implements Node {
         this(parent,childs,move,main,null,0);
     }
 
+    public NodeImpl(Node parent,Move move) {
+        this(parent,new ArrayList<Node>(),move,true,null,0);
+    }
+
     public NodeImpl(Move move, boolean main) {
         this(null,new ArrayList<Node>(),move,main,null,0);
     }
@@ -47,6 +52,11 @@ public class NodeImpl implements Node {
 
     public NodeImpl() {
         this(null,new ArrayList<Node>(),null,true,null,0);
+    }
+
+    public NodeImpl(Node parent, Move move, UndoInfo ui) {
+        this(parent,move);
+        this.ui = ui;
     }
 
     @Override
@@ -87,5 +97,27 @@ public class NodeImpl implements Node {
     @Override
     public String getPostComment() {
         return this.postComment;
+    }
+
+    public UndoInfo getUi() {
+        return ui;
+    }
+
+    public void setUi(UndoInfo ui) {
+        this.ui = ui;
+    }
+
+    @Override
+    public String toString() {
+        return "NodeImpl{" +
+                "move=" + move +
+                ", parent="+
+                ", main=" + main +
+                ", result=" + result +
+                ", moveTime=" + moveTime +
+                ", preComment='" + preComment + '\'' +
+                ", postComment='" + postComment + '\'' +
+                ", veTime=" + moveTime() +
+                '}';
     }
 }
