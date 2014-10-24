@@ -2,7 +2,7 @@ package com.chessyoup.chess.game.impl;
 
 import com.chessyoup.chess.game.Clock;
 import com.chessyoup.chess.model.Color;
-import com.chessyoup.chess.game.TimeCtrl;
+import com.chessyoup.chess.model.TimeCtrl;
 
 public class ClockImpl implements Clock {
 

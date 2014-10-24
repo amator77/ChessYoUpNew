@@ -1,6 +1,7 @@
 package com.chessyoup.chess.model.impl;
 
 import com.chessyoup.chess.model.Chessboard;
+import com.chessyoup.chess.model.Color;
 import com.chessyoup.chess.model.Factory;
 import com.chessyoup.chess.model.Move;
 import com.chessyoup.chess.model.Node;
@@ -25,6 +26,10 @@ public class ChessboardImpl implements Chessboard {
 
     private MODE mode;
 
+    private long whiteTime,whiteIncrement;
+
+    private long blackTime,blackIncrement;
+
     public ChessboardImpl() {
         this.tree = new TreeImpl(new NodeImpl());
 
@@ -38,14 +43,14 @@ public class ChessboardImpl implements Chessboard {
         this.mode = MODE.PLAY;
     }
 
-    public void addChessboardListener(ChessboardListener listener){
-        if( !this.listeners.contains(listener)){
+    public void addChessboardListener(ChessboardListener listener) {
+        if (!this.listeners.contains(listener)) {
             this.listeners.add(listener);
         }
     }
 
-    public void removeChessboardListener(ChessboardListener listener){
-        if( this.listeners.contains(listener)){
+    public void removeChessboardListener(ChessboardListener listener) {
+        if (this.listeners.contains(listener)) {
             this.listeners.remove(listener);
         }
     }
@@ -53,6 +58,30 @@ public class ChessboardImpl implements Chessboard {
     @Override
     public MODE getMode() {
         return null;
+    }
+
+    @Override
+    public void updateClockTime(Color color, long time , long increment) {
+        switch (color) {
+            case WHITE:
+                this.whiteTime = time;
+                this.whiteIncrement = increment;
+            case BLACK:
+                this.blackTime = time;
+                this.blackIncrement = increment;
+        }
+    }
+
+    @Override
+    public long getClockTime(Color color) {
+        switch (color) {
+            case WHITE:
+               return this.whiteTime;
+            case BLACK:
+                return this.blackTime;
+        }
+
+        return 0;
     }
 
     @Override
@@ -78,17 +107,18 @@ public class ChessboardImpl implements Chessboard {
     }
 
     @Override
-    public void doMove(Move move) throws IllegalMoveException {
-        this.doMove(move,false);
+    public void doMove(Move move,long time) throws IllegalMoveException {
+        this.doMove(move,time,false);
     }
 
     @Override
-    public void doMove(Move move, boolean silent) throws IllegalMoveException {
+    public void doMove(Move move, long time , boolean silent) throws IllegalMoveException {
 
-        if( this.mode == MODE.PLAY) {
+        if (this.mode == MODE.PLAY) {
+            this.adjustClockTime(time);
             UndoInfo ui = new UndoInfo();
             this.position.makeMove(Util.convertMove(move), ui);
-            this.tree.appendNode(new NodeImpl(this.tree.getSelectedNode(), move , ui));
+            this.tree.appendNode(new NodeImpl(this.tree.getSelectedNode(), move ,time, ui));
 
             if (!silent) {
                 fireChangeEvent();
@@ -116,9 +146,7 @@ public class ChessboardImpl implements Chessboard {
 
     @Override
     public void goToNode(Node node) {
-        if( this.mode == MODE.ANALYSIS) {
-
-
+        if (this.mode == MODE.ANALYSIS) {
 //            this.position.unMakeMove();
         }
     }
@@ -126,12 +154,12 @@ public class ChessboardImpl implements Chessboard {
     @Override
     public void goForward() {
 
-        if( this.mode == MODE.ANALYSIS) {
+        if (this.mode == MODE.ANALYSIS) {
             Node selectedNode = this.tree.getSelectedNode();
 
-            if(selectedNode !=  null && selectedNode.getChilds().size() > 0 ){
-                for(Node child : selectedNode.getChilds()){
-                    if( child.isMain() ){
+            if (selectedNode != null && selectedNode.getChilds().size() > 0) {
+                for (Node child : selectedNode.getChilds()) {
+                    if (child.isMain()) {
                         tree.setSelectedNode(child);
                         this.position.makeMove(Util.convertMove(child.getMove()), ((NodeImpl) child).getUi());
                         this.fireChangeEvent();
@@ -144,14 +172,14 @@ public class ChessboardImpl implements Chessboard {
 
     @Override
     public void goBack() {
-        if( this.mode == MODE.ANALYSIS) {
+        if (this.mode == MODE.ANALYSIS) {
             Node selectedNode = this.tree.getSelectedNode();
 
-            if(selectedNode !=  null && selectedNode.getParent() != null ){
-                NodeImpl parent = (NodeImpl)selectedNode.getParent();
+            if (selectedNode != null && selectedNode.getParent() != null) {
+                NodeImpl parent = (NodeImpl) selectedNode.getParent();
                 tree.setSelectedNode(parent);
 
-                if( selectedNode.getParent().getMove() != null) {
+                if (selectedNode.getParent().getMove() != null) {
                     this.position.unMakeMove(Util.convertMove(parent.getMove()), parent.getUi());
                     this.fireChangeEvent();
                 }
@@ -159,22 +187,36 @@ public class ChessboardImpl implements Chessboard {
         }
     }
 
-    private void fireChangeEvent(){
-        for(ChessboardListener listener : listeners){
+    private void fireChangeEvent() {
+        for (ChessboardListener listener : listeners) {
             listener.onChange(this);
         }
     }
 
+    private void adjustClockTime(long time) {
+
+        if(this.position.whiteMove){
+            this.whiteTime = (this.whiteTime - time)+this.whiteIncrement;
+        }
+        else{
+            this.blackTime = (this.blackTime - time)+this.blackIncrement;
+        }
+    }
+
     public static void main(String[] args) throws IllegalMoveException {
-        final ChessboardImpl impl =  new ChessboardImpl();
+        final ChessboardImpl impl = new ChessboardImpl();
+        impl.updateClockTime(Color.WHITE, 1000*60*3 , 500);
+        impl.updateClockTime(Color.BLACK, 1000*60*3 , 500);
 
         impl.addChessboardListener(new ChessboardListener() {
             @Override
             public void onChange(Chessboard source) {
-                System.out.println( "On change event");
-                System.out.println( TextIO.asciiBoard(impl.getPosition()));
-                System.out.println( impl.getMovesTree().toString());
-                System.out.println("color to move"+ impl.getPosition().getActiveColor() +" ,move nr :"+impl.getPosition().getFullMoveNumber());
+                System.out.println("On change event");
+                System.out.println(TextIO.asciiBoard(impl.getPosition()));
+                System.out.println(impl.getMovesTree().toString());
+                System.out.println("color to move" + impl.getPosition().getActiveColor() + " ,move nr :" + impl.getPosition().getFullMoveNumber());
+                System.out.println("White time :"+impl.getClockTime(Color.WHITE));
+                System.out.println("Black time :"+impl.getClockTime(Color.BLACK));
             }
 
             @Override
@@ -183,12 +225,12 @@ public class ChessboardImpl implements Chessboard {
             }
         });
 
-        impl.doMove( TextIO.stringToMove(impl.getPosition(),"e2e4") );
-        impl.doMove( TextIO.stringToMove(impl.getPosition(), "e7e5") );
-        impl.doMove( TextIO.stringToMove(impl.getPosition(), "g1f3") );
-        impl.doMove( TextIO.stringToMove(impl.getPosition(), "b8c6") );
-        impl.doMove( TextIO.stringToMove(impl.getPosition(), "f1b5") );
-        impl.doMove( TextIO.stringToMove(impl.getPosition(), "g8e7") );
+        impl.doMove(TextIO.stringToMove(impl.getPosition(), "e2e4") , 1000);
+        impl.doMove(TextIO.stringToMove(impl.getPosition(), "e7e5") , 1000);
+        impl.doMove(TextIO.stringToMove(impl.getPosition(), "g1f3") , 1000);
+        impl.doMove(TextIO.stringToMove(impl.getPosition(), "b8c6") , 1000);
+        impl.doMove(TextIO.stringToMove(impl.getPosition(), "f1b5") , 1000);
+        impl.doMove(TextIO.stringToMove(impl.getPosition(), "g8e7") , 1000);
 
         System.out.println(".....................");
         System.out.println(".....................");

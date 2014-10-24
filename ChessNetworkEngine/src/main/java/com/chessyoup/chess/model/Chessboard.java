@@ -16,8 +16,30 @@ public interface Chessboard {
         public void onResult(Chessboard source);
     }
 
+    /**
+     *
+     * @return
+     */
     public MODE getMode();
 
+    /**
+     * Update clock time for the color.
+     * @param color - color to update
+     * @param time - time in milliseconds
+     */
+    public void updateClockTime(Color color , long time , long increment);
+
+    /**
+     * Get remaining time for the color.
+     * @param color
+     * @return
+     */
+    public long getClockTime(Color color);
+
+    /**
+     * Set chessboard mode.
+     * @param mode
+     */
     public void setMode(MODE mode);
 
     /**
@@ -44,7 +66,14 @@ public interface Chessboard {
      * @param move - the move to apply
      * @throws IllegalMoveException - if this is an illegal move.
      */
-    public void doMove(Move move) throws IllegalMoveException;
+
+    /**
+     * Apply this move on current position , update clocks , and generate position change event
+     * @param move - the move
+     * @param moveTime - the move time. This will be extracted from side to move time.
+     * @throws IllegalMoveException - if this move is illegal.
+     */
+    public void doMove(Move move , long moveTime) throws IllegalMoveException;
 
     /**
      * Apply this move on current position.
@@ -53,7 +82,16 @@ public interface Chessboard {
      * @param silent
      * @throws IllegalMoveException
      */
-    public void doMove(Move move,boolean silent) throws IllegalMoveException;
+
+
+    /**
+     * Apply this move on current position , update clocks , and generate position change event
+     * @param move - the move
+     * @param moveTime - the move time. This will be extracted from side to move time.
+     * @param silent - if true , this will no generate an event
+     * @throws IllegalMoveException
+     */
+    public void doMove(Move move,long moveTime,boolean silent) throws IllegalMoveException;
 
     /**
      * Undo last move.

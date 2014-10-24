@@ -59,6 +59,12 @@ public class NodeImpl implements Node {
         this.ui = ui;
     }
 
+    public NodeImpl(Node parent, Move move ,long time, UndoInfo ui) {
+        this(parent,move);
+        this.ui = ui;
+        this.moveTime = time;
+    }
+
     @Override
     public Move getMove() {
         return this.move;

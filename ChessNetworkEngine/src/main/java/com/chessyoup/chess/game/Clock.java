@@ -1,6 +1,7 @@
 package com.chessyoup.chess.game;
 
 import com.chessyoup.chess.model.Color;
+import com.chessyoup.chess.model.TimeCtrl;
 
 
 public interface Clock {

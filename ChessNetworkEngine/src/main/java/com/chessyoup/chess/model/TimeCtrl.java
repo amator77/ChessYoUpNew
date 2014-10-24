@@ -1,4 +1,4 @@
-package com.chessyoup.chess.game;
+package com.chessyoup.chess.model;
 
 
 public interface TimeCtrl {
