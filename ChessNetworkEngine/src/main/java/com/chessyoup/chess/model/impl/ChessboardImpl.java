@@ -5,6 +5,7 @@ import com.chessyoup.chess.model.Color;
 import com.chessyoup.chess.model.Factory;
 import com.chessyoup.chess.model.Move;
 import com.chessyoup.chess.model.Node;
+import com.chessyoup.chess.model.Result;
 import com.chessyoup.chess.model.Square;
 import com.chessyoup.chess.model.Tree;
 import com.chessyoup.chess.model.exception.ChessParseError;
@@ -107,6 +108,12 @@ public class ChessboardImpl implements Chessboard {
     }
 
     @Override
+    public void setResult(Result result) {
+        ((NodeImpl)this.tree.getSelectedNode()).setResult(result);
+        this.fireOnResultEvent();
+    }
+
+    @Override
     public void doMove(Move move,long time) throws IllegalMoveException {
         this.doMove(move,time,false);
     }
@@ -190,6 +197,12 @@ public class ChessboardImpl implements Chessboard {
     private void fireChangeEvent() {
         for (ChessboardListener listener : listeners) {
             listener.onChange(this);
+        }
+    }
+
+    private void fireOnResultEvent() {
+        for (ChessboardListener listener : listeners) {
+            listener.onResult(this);
         }
     }
 

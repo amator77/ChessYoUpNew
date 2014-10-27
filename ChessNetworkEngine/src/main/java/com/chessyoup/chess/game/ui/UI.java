@@ -3,7 +3,7 @@ package com.chessyoup.chess.game.ui;
 import com.chessyoup.chess.game.Game;
 import com.chessyoup.chess.game.Player;
 
-public interface ChessGameUI {
+public interface UI {
 	
 	public interface ChessGameUIListener{
 		

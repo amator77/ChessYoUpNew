@@ -8,7 +8,7 @@ import java.util.List;
 public interface Tree {
 
     /**
-     * Get the root of this game tree
+     * Get the root of this chessboard tree
      * @return
      */
     public Node getRoot();
@@ -26,7 +26,7 @@ public interface Tree {
     public Node getSelectedNode();
 
     /**
-     * Set the current selected node in the game tree
+     * Set the current selected node in the chessboard tree
      */
     public void setSelectedNode(Node node);
 

@@ -61,6 +61,11 @@ public interface Chessboard {
     public Position getPosition();
 
     /**
+     * Set this result for the selected node in tree/
+     */
+    public void setResult(Result result);
+
+    /**
      * Apply this move on current position.
      * This will generate an event.
      * @param move - the move to apply

@@ -7,14 +7,14 @@ import java.util.logging.Logger;
 
 import com.chessyoup.chess.game.Game;
 import com.chessyoup.chess.game.Player;
-import com.chessyoup.chess.game.impl.ChessGameImpl;
+import com.chessyoup.chess.game.impl.GameImpl;
 import com.chessyoup.chess.game.network.NetworkGame;
 import com.chessyoup.chess.game.network.Transport;
 import com.chessyoup.chess.game.network.Transport.TransportListener;
 import com.chessyoup.chess.game.network.messages.IMessage;
 import com.chessyoup.chess.model.Chessboard;
 
-public class NetworkGameImpl extends ChessGameImpl implements NetworkGame,
+public class NetworkGameImpl extends GameImpl implements NetworkGame,
 		TransportListener {
 
 	private static final Logger LOG = Logger.getLogger(NetworkGameImpl.class

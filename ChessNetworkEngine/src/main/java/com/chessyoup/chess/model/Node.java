@@ -8,19 +8,19 @@ import java.util.List;
 public interface Node {
 
     /**
-     * Move generating this game node.
+     * Move generating this chessboard node.
      * @return
      */
     public Move getMove();
 
     /**
-     * Mark if this node is part of the main line of the game.
+     * Mark if this node is part of the main line of the chessboard.
      * @return
      */
     public boolean isMain();
 
     /**
-     * Parent position of this node. This is null for the root position of the game.
+     * Parent position of this node. This is null for the root position of the chessboard.
      * @return
      */
     public Node getParent();

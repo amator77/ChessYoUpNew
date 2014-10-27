@@ -2,7 +2,11 @@ package com.chessyoup.chess.model;
 
 public class Result {
 
-	public enum VALUE {
+    public Result(VALUE value) {
+        this.value = value;
+    }
+
+    public enum VALUE {
 		NO_RESULT, DRAW, WHITE_WIN, BLACK_WIN;
 
 		public String toString() {
