@@ -3,6 +3,7 @@ package com.chessyoup.chess.model;
 import com.chessyoup.chess.model.impl.ChessboardImpl;
 import com.chessyoup.chess.model.impl.PieceImpl;
 import com.chessyoup.chess.model.impl.SquareImpl;
+import com.chessyoup.chess.model.impl.Util;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,6 +43,10 @@ public class Factory {
 
     public Chessboard createChessboard(){
         return new ChessboardImpl();
+    }
+
+    public Move uciStringToMove(String uciString){
+        return Util.UCIstringToMove(uciString);
     }
 }
 

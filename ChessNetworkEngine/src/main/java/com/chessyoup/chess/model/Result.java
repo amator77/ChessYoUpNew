@@ -49,7 +49,7 @@ public class Result {
                 case INSUFFICIENT_MATERIAL:
                     return "insufficient_material";
                 default:
-                    return "aborted";
+                    return "";
             }
         }
     }

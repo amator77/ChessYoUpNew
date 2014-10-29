@@ -12,11 +12,12 @@ public class Rating {
 
     private double volatility;
 
-    private static final Double DEFAULT_RATING_DEVIATION = 350d;
+    private static final Double DEFAULT_RATING_DEVIATION = 150d;
 
     private static final Double DEFAULT_RATING_VALUE = 1500d;
 
     private static final Double DEFAULT_VOLATILITY = 0d;
+
 
     public Rating(TYPE type, double value, double ratingDeviation, double volatility) {
         this.type = type;
@@ -75,5 +76,15 @@ public class Rating {
 
     public void setVolatility(double volatility) {
         this.volatility = volatility;
+    }
+
+    @Override
+    public String toString() {
+        return "Rating{" +
+                "type=" + type +
+                ", value=" + value +
+                ", ratingDeviation=" + ratingDeviation +
+                ", volatility=" + volatility +
+                '}';
     }
 }

@@ -69,4 +69,9 @@ public class MoveImpl implements Move {
     public Piece getPromotionPiece() {
         return Util.convertPiece(promoteTo);
     }
+
+    @Override
+    public String toUCIString() {
+        return TextIO.moveToUCIString(this);
+    }
 }

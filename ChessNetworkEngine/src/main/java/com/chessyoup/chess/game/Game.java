@@ -14,7 +14,7 @@ public interface Game {
     }
 
     public interface GameListener{
-        public void onStateChange(Game source);
+        public void onStateChange(Game source,STATE oldState,STATE newState);
     }
 
     /**
@@ -74,4 +74,16 @@ public interface Game {
      * @return
      */
     public Service getService();
+
+    /**
+     *
+     * @param listener
+     */
+    public void addGameListener(GameListener listener);
+
+    /**
+     *
+     * @param listener
+     */
+    public void removeGameListener(GameListener listener);
 }

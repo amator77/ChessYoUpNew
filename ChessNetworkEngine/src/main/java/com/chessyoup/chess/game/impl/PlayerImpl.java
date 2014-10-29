@@ -83,4 +83,14 @@ public abstract class PlayerImpl implements Player {
             listener.onMove(this,gameId,move,moveTime);
         }
     }
+
+    @Override
+    public String toString() {
+        return "PlayerImpl{" +
+                "id='" + id + '\'' +
+                ", bullet=" + bullet +
+                ", blitz=" + blitz +
+                ", standard=" + standard +
+                '}';
+    }
 }

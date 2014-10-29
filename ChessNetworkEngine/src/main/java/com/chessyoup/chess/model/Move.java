@@ -7,4 +7,6 @@ public interface Move {
 	public Square getDestination();
 
     public Piece getPromotionPiece();
+
+    public String toUCIString();
 }
