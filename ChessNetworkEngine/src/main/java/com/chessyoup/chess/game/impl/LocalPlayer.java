@@ -1,5 +1,6 @@
 package com.chessyoup.chess.game.impl;
 
+import com.chessyoup.chess.game.Game;
 import com.chessyoup.chess.model.Move;
 
 /**
@@ -12,7 +13,7 @@ public class LocalPlayer extends PlayerImpl {
     }
 
     @Override
-    public void moveMade(Move move, String gameId) {
-        this.fireMoveEvent(move,gameId);
+    public void yourTurn(Game game) {
+
     }
 }

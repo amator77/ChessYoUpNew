@@ -78,16 +78,9 @@ public abstract class PlayerImpl implements Player {
         }
     }
 
-    protected void fireMoveEvent(Move move,String gameId){
+    protected void fireMoveEvent( String gameId , Move move, long moveTime){
         for(PlayerListener listener : this.listeners){
-            listener.onMove(move,gameId);
+            listener.onMove(this,gameId,move,moveTime);
         }
     }
-
-    /**
-     * External layers ( UI or Transport ) should call this on move made by the player.
-     * @param move - the move
-     * @param gameId - the game id
-     */
-    public abstract void moveMade(Move move,String gameId);
 }

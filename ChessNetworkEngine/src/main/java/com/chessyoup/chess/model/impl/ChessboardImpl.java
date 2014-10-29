@@ -27,9 +27,9 @@ public class ChessboardImpl implements Chessboard {
 
     private MODE mode;
 
-    private long whiteTime,whiteIncrement;
+    private long whiteTime, whiteIncrement;
 
-    private long blackTime,blackIncrement;
+    private long blackTime, blackIncrement;
 
     public ChessboardImpl() {
         this.tree = new TreeImpl(new NodeImpl());
@@ -62,7 +62,7 @@ public class ChessboardImpl implements Chessboard {
     }
 
     @Override
-    public void updateClockTime(Color color, long time , long increment) {
+    public void updateClockTime(Color color, long time, long increment) {
         switch (color) {
             case WHITE:
                 this.whiteTime = time;
@@ -75,9 +75,10 @@ public class ChessboardImpl implements Chessboard {
 
     @Override
     public long getClockTime(Color color) {
+
         switch (color) {
             case WHITE:
-               return this.whiteTime;
+                return this.whiteTime;
             case BLACK:
                 return this.blackTime;
         }
@@ -109,26 +110,33 @@ public class ChessboardImpl implements Chessboard {
 
     @Override
     public void setResult(Result result) {
-        ((NodeImpl)this.tree.getSelectedNode()).setResult(result);
+        ((NodeImpl) this.tree.getSelectedNode()).setResult(result);
         this.fireOnResultEvent();
     }
 
     @Override
-    public void doMove(Move move,long time) throws IllegalMoveException {
-        this.doMove(move,time,false);
+    public void doMove(Move move, long time) throws IllegalMoveException {
+        this.doMove(move, time, false);
     }
 
     @Override
-    public void doMove(Move move, long time , boolean silent) throws IllegalMoveException {
+    public void doMove(Move move, long time, boolean silent) throws IllegalMoveException {
 
         if (this.mode == MODE.PLAY) {
             this.adjustClockTime(time);
             UndoInfo ui = new UndoInfo();
             this.position.makeMove(Util.convertMove(move), ui);
-            this.tree.appendNode(new NodeImpl(this.tree.getSelectedNode(), move ,time, ui));
+            Result result = this.computeResult();
+            NodeImpl node = new NodeImpl(this.tree.getSelectedNode(), move, time, ui);
+            node.setResult(result);
+            this.tree.appendNode(node);
 
             if (!silent) {
                 fireChangeEvent();
+
+                if (result != Result.NO_RESULT) {
+                    fireOnResultEvent();
+                }
             }
         }
     }
@@ -208,18 +216,37 @@ public class ChessboardImpl implements Chessboard {
 
     private void adjustClockTime(long time) {
 
-        if(this.position.whiteMove){
-            this.whiteTime = (this.whiteTime - time)+this.whiteIncrement;
+        if (this.position.whiteMove) {
+            this.whiteTime = (this.whiteTime - time) + this.whiteIncrement;
+        } else {
+            this.blackTime = (this.blackTime - time) + this.blackIncrement;
         }
-        else{
-            this.blackTime = (this.blackTime - time)+this.blackIncrement;
+    }
+
+    /**
+     * Compute result taking in account time.
+     *
+     * @return
+     */
+    private Result computeResult() {
+        Result result = this.position.computeResult();
+
+        if (result == Result.NO_RESULT) {
+            if (this.whiteTime <= 0) {
+                result = new Result(Result.VALUE.BLACK_WIN, Result.REASON.FLAG);
+            }
+            if (this.blackTime <= 0) {
+                result = new Result(Result.VALUE.WHITE_WIN, Result.REASON.FLAG);
+            }
         }
+
+        return result;
     }
 
     public static void main(String[] args) throws IllegalMoveException {
         final ChessboardImpl impl = new ChessboardImpl();
-        impl.updateClockTime(Color.WHITE, 1000*60*3 , 500);
-        impl.updateClockTime(Color.BLACK, 1000*60*3 , 500);
+        impl.updateClockTime(Color.WHITE, 1000 * 60 * 3, 500);
+        impl.updateClockTime(Color.BLACK, 1000 * 60 * 3, 500);
 
         impl.addChessboardListener(new ChessboardListener() {
             @Override
@@ -228,8 +255,8 @@ public class ChessboardImpl implements Chessboard {
                 System.out.println(TextIO.asciiBoard(impl.getPosition()));
                 System.out.println(impl.getMovesTree().toString());
                 System.out.println("color to move" + impl.getPosition().getActiveColor() + " ,move nr :" + impl.getPosition().getFullMoveNumber());
-                System.out.println("White time :"+impl.getClockTime(Color.WHITE));
-                System.out.println("Black time :"+impl.getClockTime(Color.BLACK));
+                System.out.println("White time :" + impl.getClockTime(Color.WHITE));
+                System.out.println("Black time :" + impl.getClockTime(Color.BLACK));
             }
 
             @Override
@@ -238,12 +265,22 @@ public class ChessboardImpl implements Chessboard {
             }
         });
 
-        impl.doMove(TextIO.stringToMove(impl.getPosition(), "e2e4") , 1000);
-        impl.doMove(TextIO.stringToMove(impl.getPosition(), "e7e5") , 1000);
-        impl.doMove(TextIO.stringToMove(impl.getPosition(), "g1f3") , 1000);
-        impl.doMove(TextIO.stringToMove(impl.getPosition(), "b8c6") , 1000);
-        impl.doMove(TextIO.stringToMove(impl.getPosition(), "f1b5") , 1000);
-        impl.doMove(TextIO.stringToMove(impl.getPosition(), "g8e7") , 1000);
+        impl.doMove(TextIO.stringToMove(impl.getPosition(), "b1c3"), 1000);
+        System.out.println(impl.getPosition().getHalfMoveClock());
+        impl.doMove(TextIO.stringToMove(impl.getPosition(), "b8c6"), 1000);
+        System.out.println(impl.getPosition().getHalfMoveClock());
+        impl.doMove(TextIO.stringToMove(impl.getPosition(), "c3b1"), 1000);
+        System.out.println(impl.getPosition().getHalfMoveClock());
+        impl.doMove(TextIO.stringToMove(impl.getPosition(), "c6b8"), 1000);
+        System.out.println(impl.getPosition().getHalfMoveClock());
+        impl.doMove(TextIO.stringToMove(impl.getPosition(), "b1c3"), 1000);
+        System.out.println(impl.getPosition().getHalfMoveClock());
+        impl.doMove(TextIO.stringToMove(impl.getPosition(), "b8c6"), 1000);
+        System.out.println(impl.getPosition().getHalfMoveClock());
+        impl.doMove(TextIO.stringToMove(impl.getPosition(), "c3b1"), 1000);
+        System.out.println(impl.getPosition().getHalfMoveClock());
+        impl.doMove(TextIO.stringToMove(impl.getPosition(), "c6b8"), 1000);
+        System.out.println(impl.getPosition().getHalfMoveClock());
 
         System.out.println(".....................");
         System.out.println(".....................");

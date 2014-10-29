@@ -32,7 +32,7 @@ public class NodeImpl implements Node {
         this.moveTime = moveTime;
         this.preComment = "";
         this.postComment = "";
-        this.result = new Result(Result.VALUE.NO_RESULT);
+        this.result = Result.NO_RESULT;
     }
 
     public NodeImpl(Node parent, List<Node> childs, Move move, boolean main) {

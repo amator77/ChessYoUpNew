@@ -128,4 +128,8 @@ public interface Chessboard {
      * This will trigger an event.
      */
     public void goBack();
+
+    public void addChessboardListener(ChessboardListener listener);
+
+    public void removeChessboardListener(ChessboardListener listener);
 }

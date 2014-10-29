@@ -4,11 +4,13 @@ import com.chessyoup.chess.model.Color;
 import com.chessyoup.chess.model.Factory;
 import com.chessyoup.chess.model.Piece;
 import com.chessyoup.chess.model.Position;
+import com.chessyoup.chess.model.Result;
 import com.chessyoup.chess.model.Square;
 
 import java.awt.Point;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
 public class PositionImpl implements Position {
     private int[] squares;
@@ -403,6 +405,66 @@ public class PositionImpl implements Position {
         } catch (NoSuchAlgorithmException ex) {
             throw new UnsupportedOperationException("SHA-1 not available");
         }
+    }
+
+    public Result computeResult() {
+
+        ArrayList<MoveImpl> moves = new MoveGen().legalMoves(this);
+
+        if (moves.size() == 0) {
+            if (MoveGen.inCheck(this)) {
+                return new Result( this.whiteMove ? Result.VALUE.BLACK_WIN : Result.VALUE.WHITE_WIN, Result.REASON.MATE);
+            } else {
+                return new Result( Result.VALUE.DRAW, Result.REASON.STALEMATE);
+            }
+        }
+
+        if (insufficientMaterial()) {
+            return new Result( Result.VALUE.DRAW, Result.REASON.INSUFFICIENT_MATERIAL);
+        }
+
+        if( halfMoveClock >= 100 ){
+            return new Result( Result.VALUE.DRAW, Result.REASON.DRAY_BY_50_RULE);
+        }
+
+        return Result.NO_RESULT;
+    }
+
+    private boolean insufficientMaterial() {
+        if (this.nPieces(PieceImpl.WQUEEN) > 0) return false;
+        if (this.nPieces(PieceImpl.WROOK)  > 0) return false;
+        if (this.nPieces(PieceImpl.WPAWN)  > 0) return false;
+        if (this.nPieces(PieceImpl.BQUEEN) > 0) return false;
+        if (this.nPieces(PieceImpl.BROOK)  > 0) return false;
+        if (this.nPieces(PieceImpl.BPAWN)  > 0) return false;
+        int wb = this.nPieces(PieceImpl.WBISHOP);
+        int wn = this.nPieces(PieceImpl.WKNIGHT);
+        int bb = this.nPieces(PieceImpl.BBISHOP);
+        int bn = this.nPieces(PieceImpl.BKNIGHT);
+        if (wb + wn + bb + bn <= 1) {
+            return true;    // King + bishop/knight vs king is draw
+        }
+        if (wn + bn == 0) {
+            // Only bishops. If they are all on the same color, the position is a draw.
+            boolean bSquare = false;
+            boolean wSquare = false;
+            for (int x = 0; x < 8; x++) {
+                for (int y = 0; y < 8; y++) {
+                    int p = this.getPiece(PositionImpl.getSquare(x, y));
+                    if ((p == PieceImpl.BBISHOP) || (p == PieceImpl.WBISHOP)) {
+                        if (PositionImpl.darkSquare(x, y)) {
+                            bSquare = true;
+                        } else {
+                            wSquare = true;
+                        }
+                    }
+                }
+            }
+            if (!bSquare || !wSquare) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Useful for debugging. */

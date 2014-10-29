@@ -14,9 +14,13 @@ import com.chessyoup.chess.model.exception.IllegalMoveException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class GameImpl implements Game, Player.PlayerListener {
+
+    private static final Logger LOG = Logger.getLogger(GameImpl.class.getName());
 
     public String gameId;
 
@@ -49,7 +53,7 @@ public class GameImpl implements Game, Player.PlayerListener {
 
     @Override
     public Chessboard getChessboard() {
-        return this.getChessboard();
+        return this.chessboard;
     }
 
     @Override
@@ -92,6 +96,8 @@ public class GameImpl implements Game, Player.PlayerListener {
         this.whitePlayer.addListener(this);
         this.blackPlayer = blackPlayer;
         this.blackPlayer.addListener(this);
+        this.chessboard.updateClockTime(Color.WHITE,timeControll.getTime(),timeControll.getIncrement());
+        this.chessboard.updateClockTime(Color.BLACK,timeControll.getTime(),timeControll.getIncrement());
         this.chessboard.reset();
     }
 
@@ -101,12 +107,13 @@ public class GameImpl implements Game, Player.PlayerListener {
     }
 
     @Override
-    public void onMove(Move move, String gameId) {
+    public void onMove(Player source,String gameId,Move move,long moveTime) {
+        LOG.log(Level.FINE,"Player :"+source.getId()+" move :"+move.toString() +" , move time :"+moveTime+" , gameId :"+gameId);
+
         if (this.gameId == gameId) {
 
             try {
-                // TODO get move time from clock
-                this.chessboard.doMove(move,1000);
+                this.chessboard.doMove(move,moveTime);
             } catch (IllegalMoveException e) {
                 // TODO handle this exception
                 e.printStackTrace();
@@ -115,7 +122,7 @@ public class GameImpl implements Game, Player.PlayerListener {
     }
 
     @Override
-    public void onOffer(OFFER offer, String gameId) {
+    public void onOffer(Player source,OFFER offer, String gameId) {
         if (this.gameId == gameId) {
             this.lastOffer = offer;
 
@@ -124,39 +131,39 @@ public class GameImpl implements Game, Player.PlayerListener {
     }
 
     @Override
-    public void onResign(String gameId) {
+    public void onResign(Player source,String gameId) {
         if (this.gameId == gameId) {
-            this.handleResign();
+            this.handleResign(source);
         }
     }
 
     @Override
-    public void onExit(String gameId) {
+    public void onExit(Player source,String gameId) {
         if (this.gameId == gameId) {
-            this.handleResign();
+            this.handleResign(source);
         }
     }
 
     @Override
-    public void onFlag(String gameId) {
+    public void onFlag(Player source,String gameId) {
         if (this.gameId == gameId) {
-            this.handleResign(Result.REASON.FLAG);
+            this.handleResign(source,Result.REASON.FLAG);
         }
     }
 
     @Override
-    public void onChat(String gameId, String message) {
+    public void onChat(Player source,String gameId, String message) {
         if (this.gameId == gameId) {
             // TODO send this message to UI layer
         }
     }
 
-    private void handleResign(Result.REASON reason){
+    private void handleResign(Player source,Result.REASON reason){
         Color sideToMove = this.chessboard.getPosition().getActiveColor();
         this.chessboard.setResult(new Result(sideToMove == Color.WHITE ? Result.VALUE.BLACK_WIN : Result.VALUE.BLACK_WIN, reason));
     }
 
-    private void handleResign(){
-        this.handleResign(Result.REASON.RESIGN);
+    private void handleResign(Player source){
+        this.handleResign(source,Result.REASON.RESIGN);
     }
 }

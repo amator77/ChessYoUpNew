@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 
 public class MoveGen {
-    static MoveGen instance;
+    public static MoveGen instance;
     static {
         instance = new MoveGen();
     }
