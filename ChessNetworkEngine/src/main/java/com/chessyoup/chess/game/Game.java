@@ -70,12 +70,6 @@ public interface Game {
     public void setup(Player whitePlayer,Player blackPlayer,TimeCtrl timeControll);
 
     /**
-     * Service interface for clock service , ui
-     * @return
-     */
-    public Service getService();
-
-    /**
      *
      * @param listener
      */

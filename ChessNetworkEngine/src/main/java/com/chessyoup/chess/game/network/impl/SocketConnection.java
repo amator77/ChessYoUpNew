@@ -4,18 +4,24 @@ import com.chessyoup.chess.game.Player;
 import com.chessyoup.chess.game.network.Connection;
 import com.chessyoup.chess.game.network.exceptions.NetworkException;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by leo on 29.10.2014.
  */
-public class SocketConnection implements Connection {
+public class SocketConnection implements Connection , Runnable {
 
     private String ip;
 
@@ -24,6 +30,10 @@ public class SocketConnection implements Connection {
     private Socket socket;
 
     private List<ConnectionListener> listeners;
+
+    private Thread readThread;
+
+    private Player remotePlayer;
 
     public SocketConnection(String ip,int port){
         this.ip = ip;
@@ -41,7 +51,9 @@ public class SocketConnection implements Connection {
         if( !isConnected() ){
             try {
                 this.socket = new Socket();
-                this.socket.connect(new InetSocketAddress(InetAddress.getByName("ip"),port));
+                this.socket.connect(new InetSocketAddress(InetAddress.getByName(ip),port));
+                this.readThread = new Thread(this);
+                this.readThread.start();
                 this.fireOnConnectionEvent();
             } catch (IOException e) {
                 throw new NetworkException("Exception on connecting to "+ip+":"+port,e);
@@ -97,5 +109,51 @@ public class SocketConnection implements Connection {
         for(ConnectionListener listener : listeners){
             listener.onDisconnected();
         }
+    }
+
+    public Player getRemotePlayer() {
+        return remotePlayer;
+    }
+
+    public void setRemotePlayer(Player remotePlayer) {
+        this.remotePlayer = remotePlayer;
+    }
+
+    @Override
+    public void run() {
+
+        if(isConnected()){
+
+            try {
+
+                InputStream stream = this.socket.getInputStream();
+                byte[] buffer = new byte[1024];
+
+                while(isConnected()){
+                    Logger.getLogger(SocketConnection.class.toString()).log(Level.INFO,"Waiting for data...");
+                    int read = stream.read(buffer);
+                    Logger.getLogger(SocketConnection.class.toString()).log(Level.INFO,"new data from "+remotePlayer.getId()+" , size :"+read);
+                    byte[] message = new byte[read];
+                    System.arraycopy(buffer,0,message,0,read);
+
+                    if( new String(message).equals("join")){
+                        for( ConnectionListener listener : listeners){
+                            listener.onRemoteConnected(this.remotePlayer);
+                        }
+                    }
+                    else{
+                        for( ConnectionListener listener : listeners){
+                            listener.onMessage(remotePlayer,message);
+                        }
+                    }
+                }
+
+            } catch (IOException e) {
+                Logger.getLogger(SocketConnection.class.toString()).log(Level.WARNING,"Socket exception.Closing the read thread.",e);
+            }
+
+        }
+
+        Logger.getLogger(SocketConnection.class.toString()).log(Level.FINE,"Client thread is closing.");
     }
 }

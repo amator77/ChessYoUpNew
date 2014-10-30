@@ -4,7 +4,6 @@ import com.chessyoup.chess.Util;
 import com.chessyoup.chess.game.Game;
 import com.chessyoup.chess.game.Player;
 import com.chessyoup.chess.game.Rating;
-import com.chessyoup.chess.game.Service;
 import com.chessyoup.chess.game.TimeCtrl;
 import com.chessyoup.chess.model.Chessboard;
 import com.chessyoup.chess.model.Color;
@@ -106,11 +105,6 @@ public class GameImpl implements Game, Player.PlayerListener ,Chessboard.Chessbo
         this.chessboard.updateClockTime(Color.BLACK, timeControll.getTime(), timeControll.getIncrement());
         this.chessboard.reset();
         this.setState(STATE.READY);
-    }
-
-    @Override
-    public Service getService() {
-        return null;
     }
 
     @Override

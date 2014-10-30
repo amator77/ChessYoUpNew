@@ -13,9 +13,9 @@ public interface Connection {
 
         public void onMessage(Player player,byte[] message);
 
-        public void onJoin(Player player);
+        public void onRemoteConnected(Player player);
 
-        public void onLeft(Player player);
+        public void onRemoteDisconnected(Player player);
 
         public void onConnected();
 

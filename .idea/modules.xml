@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/BaseGameUtils/BaseGameUtils.iml" filepath="$PROJECT_DIR$/BaseGameUtils/BaseGameUtils.iml" />
       <module fileurl="file://$PROJECT_DIR$/ChessNetworkEngine/ChessNetworkEngine.iml" filepath="$PROJECT_DIR$/ChessNetworkEngine/ChessNetworkEngine.iml" />
       <module fileurl="file://$PROJECT_DIR$/ChessYoUp.iml" filepath="$PROJECT_DIR$/ChessYoUp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ChessYoUpNew.iml" filepath="$PROJECT_DIR$/ChessYoUpNew.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

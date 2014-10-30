@@ -2,9 +2,11 @@ package com.chessyoup.chess.game.network;
 
 import com.chessyoup.chess.game.Player;
 import com.chessyoup.chess.game.impl.GameImpl;
+import com.chessyoup.chess.game.network.exceptions.NetworkException;
 import com.chessyoup.chess.model.Chessboard;
 import com.chessyoup.chess.model.Color;
 import com.chessyoup.chess.model.Factory;
+import com.chessyoup.service.ServiceFactory;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,20 +33,28 @@ public class OnlineGame extends GameImpl implements Connection.ConnectionListene
     @Override
     public void onMessage(Player player, byte[] message) {
         LOG.log(Level.FINE," onMessage from "+player+" , size :"+message.length);
+        OnlineGameProtocol.handleGameData(this,message);
     }
 
     @Override
-    public void onJoin(Player player) {
-        LOG.log(Level.FINE," onJoin "+player);
+    public void onRemoteConnected(Player player) {
+        LOG.log(Level.FINE," onRemoteConnected "+player);
         this.config.remotePlayer = player;
+
+        try {
+            OnlineGameProtocol.sendReady(this);
+        } catch (NetworkException e) {
+            LOG.log(Level.SEVERE,"Network error on sending ready message for game :"+gameId,e);
+            ServiceFactory.getService().handleException(e);
+        }
     }
 
     @Override
-    public void onLeft(Player player) {
-        LOG.log(Level.FINE," onLeft "+player);
+    public void onRemoteDisconnected(Player player) {
+        LOG.log(Level.FINE," onRemoteDisconnected "+player);
 
         if( getState() == STATE.IN_PROGRESS){
-            //TODO
+            this.config.remotePlayer.resign(this.getId());
         }
     }
 

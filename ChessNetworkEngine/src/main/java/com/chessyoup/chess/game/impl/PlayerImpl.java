@@ -72,6 +72,27 @@ public abstract class PlayerImpl implements Player {
     }
 
     @Override
+    public void resign(String gameId){
+        for(PlayerListener listener : listeners){
+            listener.onResign(this,gameId);
+        }
+    }
+
+    @Override
+    public void left(String gameId){
+        for(PlayerListener listener : listeners){
+            listener.onExit(this,gameId);
+        }
+    }
+
+    @Override
+    public void flag(String gameId){
+        for(PlayerListener listener : listeners){
+            listener.onFlag(this,gameId);
+        }
+    }
+
+    @Override
     public void removeListener(PlayerListener listener) {
         if( this.listeners.contains(listener)) {
             this.listeners.remove(listener);

@@ -4,8 +4,9 @@ import com.chessyoup.chess.game.Game.OFFER;
 import com.chessyoup.chess.model.Move;
 
 public interface Player {
-	
-	public interface PlayerListener {
+
+
+    public interface PlayerListener {
 
         /**
          * Called when this player produce an valid move for current chessboard.
@@ -72,4 +73,22 @@ public interface Player {
 	public void addListener(PlayerListener listener);
 	
 	public void removeListener(PlayerListener listener);
+
+    /**
+     *
+     * @param gameId
+     */
+    public void resign(String gameId);
+
+    /**
+     *
+     * @param id
+     */
+    public void left(String id);
+
+    /**
+     *
+     * @param id
+     */
+    public void flag(String id);
 }

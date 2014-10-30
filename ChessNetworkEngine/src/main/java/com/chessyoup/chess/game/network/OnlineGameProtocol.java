@@ -31,8 +31,6 @@ public class OnlineGameProtocol {
     public static final byte OFFER_ABORT = 9;
     public static final byte OFFER_REMATCH = 10;
 
-    public static final byte SEPARATOR = 0;
-
     public static void handleGameData(OnlineGame game, byte[] data) {
 
         switch (data[0]) {
@@ -55,14 +53,17 @@ public class OnlineGameProtocol {
             break;
             case RESIGN: {
                 LOG.log(Level.FINE, " handleGameData :: resign");
+                game.getConfig().remotePlayer.resign(game.getId());
             }
             break;
             case LEFT: {
                 LOG.log(Level.FINE, " handleGameData :: left");
+                game.getConfig().remotePlayer.left(game.getId());
             }
             break;
             case FLAG: {
                 LOG.log(Level.FINE, " handleGameData :: flag");
+                game.getConfig().remotePlayer.flag(game.getId());
             }
             break;
             case OFFER: {
@@ -130,7 +131,6 @@ public class OnlineGameProtocol {
 
     private static void sendData(OnlineGame game, byte[] data) throws NetworkException {
         LOG.log(Level.FINE, "Send " + data.length + " bytes to :" + game.getConfig().remotePlayer.getId());
-
         game.getConfig().connection.sendMessage(game.getConfig().remotePlayer, data);
     }
 
